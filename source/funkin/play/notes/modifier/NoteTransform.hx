@@ -3,7 +3,7 @@ package funkin.play.notes.modifier;
 /**
  * Class that contains note transform data
  */
-class NoteTransformRaw
+class NoteTransform
 {
   /**
    * X position
@@ -20,39 +20,23 @@ class NoteTransformRaw
     this.x = x;
     this.y = y;
   }
-}
 
-/**
- * Wrapper for `NoteTransformRaw`
- */
-@:forward
-abstract NoteTransform(NoteTransformRaw) from NoteTransformRaw to NoteTransformRaw
-{
-  public function new(x:Float, y:Float)
-  {
-    this = new NoteTransformRaw(x, y);
-  }
-
-  @:op(A + B)
-  public function op_add(other:NoteTransform):NoteTransform
+  public function add(other:NoteTransform):NoteTransform
   {
     return new NoteTransform(this.x + other.x, this.y + other.y);
   }
 
-  @:op(A - B)
-  public function op_sub(other:NoteTransform):NoteTransform
+  public function sub(other:NoteTransform):NoteTransform
   {
     return new NoteTransform(this.x - other.x, this.y - other.y);
   }
 
-  @:op(A * B)
-  public function op_mul(other:NoteTransform):NoteTransform
+  public function mul(other:NoteTransform):NoteTransform
   {
     return new NoteTransform(this.x * other.x, this.y * other.y);
   }
 
-  @:op(A / B)
-  public function op_div(other:NoteTransform):NoteTransform
+  public function div(other:NoteTransform):NoteTransform
   {
     return new NoteTransform(this.x / other.x, this.y / other.y);
   }
