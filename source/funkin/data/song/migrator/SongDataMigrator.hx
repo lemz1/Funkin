@@ -3,9 +3,12 @@ package funkin.data.song.migrator;
 import funkin.data.song.SongData.SongMetadata;
 import funkin.data.song.SongData.SongPlayData;
 import funkin.data.song.SongData.SongCharacterData;
+import funkin.data.song.SongData.SongChartData;
+import funkin.data.song.SongData.SongEventData;
 import funkin.data.song.migrator.SongData_v2_0_0.SongMetadata_v2_0_0;
 import funkin.data.song.migrator.SongData_v2_0_0.SongPlayData_v2_0_0;
 import funkin.data.song.migrator.SongData_v2_0_0.SongPlayableChar_v2_0_0;
+import funkin.data.song.migrator.SongData_v2_0_0.SongChartData_v2_0_0;
 
 using funkin.data.song.migrator.SongDataMigrator; // Does this even work lol?
 
@@ -110,6 +113,22 @@ class SongDataMigrator
     {
       result.characters = new SongCharacterData(firstCharKey, firstCharData.girlfriend, firstCharData.opponent, firstCharData.inst);
     }
+
+    return result;
+  }
+
+  public static overload extern inline function migrate(input:SongData_v2_0_0.SongChartData_v2_0_0):SongMetadata
+  {
+    return migrate_SongChartData_v2_0_0(input);
+  }
+
+  public static function migrate_SongChartData_v2_0_0(input:SongData_v2_0_0.SongChartData_v2_0_0):SongMetadata
+  {
+    var events:Array<Array<SongEventData>> = [for (event in input.events) [event]];
+
+    var result:SongChartData = new SongChartData(input.scrollSpeed, events, input.notes);
+    result.version = SongRegistry.SONG_CHART_DATA_VERSION;
+    result.generatedBy = input.generatedBy;
 
     return result;
   }

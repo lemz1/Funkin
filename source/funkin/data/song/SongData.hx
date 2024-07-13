@@ -562,7 +562,7 @@ class SongChartData implements ICloneable<SongChartData>
   public var version:Version;
 
   public var scrollSpeed:Map<String, Float>;
-  public var events:Array<SongEventData>;
+  public var events:Array<Array<SongEventData>>;
   public var notes:Map<String, Array<SongNoteData>>;
 
   @:default(funkin.data.song.SongRegistry.DEFAULT_GENERATEDBY)
@@ -574,7 +574,7 @@ class SongChartData implements ICloneable<SongChartData>
   @:jignored
   public var variation:String;
 
-  public function new(scrollSpeed:Map<String, Float>, events:Array<SongEventData>, notes:Map<String, Array<SongNoteData>>)
+  public function new(scrollSpeed:Map<String, Float>, events:Array<Array<SongEventData>>, notes:Map<String, Array<SongNoteData>>)
   {
     this.version = SongRegistry.SONG_CHART_DATA_VERSION;
 
@@ -642,7 +642,9 @@ class SongChartData implements ICloneable<SongChartData>
     {
       noteDataClone.set(key, this.notes.get(key).deepClone());
     }
-    var eventDataClone:Array<SongEventData> = this.events.deepClone();
+    var eventDataClone:Array<Array<SongEventData>> = this.events.map(function(events) {
+      return events.deepClone();
+    });
 
     var result:SongChartData = new SongChartData(this.scrollSpeed.clone(), eventDataClone, noteDataClone);
     result.version = this.version;
@@ -658,6 +660,135 @@ class SongChartData implements ICloneable<SongChartData>
   public function toString():String
   {
     return 'SongChartData(${this.events.length} events, ${this.notes.size()} difficulties, ${generatedBy})';
+  }
+}
+
+class SongEventListDataRaw implements ICloneable<SongEventListDataRaw>
+{
+  /**
+   * The timestamp of the event. The timestamp is in the format of the song's time format.
+   */
+  @:alias("t")
+  public var time(default, set):Float;
+
+  function set_time(value:Float):Float
+  {
+    _stepTime = null;
+    return time = value;
+  }
+
+  /**
+   * The list of events.
+   */
+  @:alias("e")
+  public var events:Array<SongEventData>;
+
+  public function new(time:Float, events:Array<SongEventData>)
+  {
+    this.time = time;
+    this.events = events;
+  }
+
+  @:jignored
+  var _stepTime:Null<Float> = null;
+
+  public function getStepTime(force:Bool = false):Float
+  {
+    if (_stepTime != null && !force) return _stepTime;
+
+    return _stepTime = Conductor.instance.getTimeInSteps(this.time);
+  }
+
+  public function clone():SongEventListDataRaw
+  {
+    return new SongEventListDataRaw(this.time, this.events.deepClone());
+  }
+}
+
+/**
+ * Wrap SongEventListData in an abstract so we can overload operators.
+ */
+@:forward
+abstract SongEventListData(SongEventListDataRaw) from SongEventListDataRaw to SongEventListDataRaw
+{
+  public function new(time:Float, events:Array<SongEventData>)
+  {
+    this = new SongEventListDataRaw(time, events);
+  }
+
+  public function clone():SongEventListData
+  {
+    return new SongEventListData(this.time, this.events.deepClone());
+  }
+
+  @:op(A == B)
+  public function op_equals(other:SongEventListData):Bool
+  {
+    if (this.time != other.time || this.events.length != other.events.length)
+    {
+      return false;
+    }
+
+    for (i in 0...this.events.length)
+    {
+      if (this.events[i] != other.events[i])
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @:op(A != B)
+  public function op_notEquals(other:SongEventListData):Bool
+  {
+    return !op_equals(other);
+  }
+
+  @:op(A > B)
+  public function op_greaterThan(other:SongEventListData):Bool
+  {
+    return this.time > other.time;
+  }
+
+  @:op(A < B)
+  public function op_lessThan(other:SongEventListData):Bool
+  {
+    return this.time < other.time;
+  }
+
+  @:op(A >= B)
+  public function op_greaterThanOrEquals(other:SongEventListData):Bool
+  {
+    return this.time >= other.time;
+  }
+
+  @:op(A <= B)
+  public function op_lessThanOrEquals(other:SongEventListData):Bool
+  {
+    return this.time <= other.time;
+  }
+
+  /**
+   * Produces a string representation suitable for debugging.
+   */
+  public function toString():String
+  {
+    var eventsToString:String = '';
+    for (eventList in this.events)
+    {
+      for (event in eventList)
+      {
+        eventsToString += '${event.toString()}\n    ';
+      }
+    }
+
+    return 'SongEventListData(\n'
+      + '  Timestamp: ${this.time}ms\n'
+      + '  ${this.events.length} Events:\n'
+      + '    ${eventsToString}\n'
+      + ')';
   }
 }
 

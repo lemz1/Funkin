@@ -544,9 +544,9 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   var eventKindToPlace:String = 'FocusCamera';
 
   /**
-   * The event data to use for events being placed in the chart.
+   * The event data to use for events being placed in the chart. Defaults to `[]`
    */
-  var eventDataToPlace:DynamicAccess<Dynamic> = {};
+  var eventDataToPlace:Array<DynamicAccess<Dynamic>> = [];
 
   /**
    * The internal index of what note snapping value is in use.
@@ -861,7 +861,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * The events which are currently in the user's selection.
    */
-  var currentEventSelection:Array<SongEventData> = [];
+  var currentEventSelection:Array<Array<SongEventData>> = [];
 
   /**
    * The position where the user clicked to start a selection.
@@ -4719,7 +4719,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
                 {
                   // Create an event and place it in the chart.
                   // TODO: Figure out configuring event data.
-                  var newEventData:SongEventData = new SongEventData(cursorSnappedMs, eventKindToPlace, eventDataToPlace.copy());
+                  var newEventData:SongEventData = new SongEventData(cursorSnappedMs, eventKindToPlace, [for (event in eventDataToPlace) element.copy()]);
 
                   performCommand(new AddEventsCommand([newEventData], FlxG.keys.pressed.CONTROL));
                 }

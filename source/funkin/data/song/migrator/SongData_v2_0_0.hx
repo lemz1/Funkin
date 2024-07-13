@@ -131,3 +131,55 @@ class SongPlayableChar_v2_0_0
     return 'SongPlayableChar[LEGACY:v2.0.0](${this.girlfriend}, ${this.opponent}, ${this.inst})';
   }
 }
+
+@:nullSafety
+class SongChartData_v2_0_0
+{
+  // ==========
+  // MODIFIED VALUES
+  // ===========
+
+  /**
+   * In chartdata `v2.1.0`, `Events` are a Array<Array<Event>>.
+   */
+  public var events:Array<SongEventData>;
+
+  // ==========
+  // UNMODIFIED VALUES
+  // ==========
+  @:default(funkin.data.song.SongRegistry.SONG_CHART_DATA_VERSION)
+  @:jcustomparse(funkin.data.DataParse.semverVersion)
+  @:jcustomwrite(funkin.data.DataWrite.semverVersion)
+  public var version:Version;
+
+  public var scrollSpeed:Map<String, Float>;
+  public var notes:Map<String, Array<SongNoteData>>;
+
+  @:default(funkin.data.song.SongRegistry.DEFAULT_GENERATEDBY)
+  public var generatedBy:String;
+
+  /**
+   * Defaults to `Constants.DEFAULT_VARIATION`. Populated later.
+   */
+  @:jignored
+  public var variation:String;
+
+  public function new(scrollSpeed:Map<String, Float>, events:Array<SongEventData>, notes:Map<String, Array<SongNoteData>>)
+  {
+    this.version = SongRegistry.SONG_CHART_DATA_VERSION;
+
+    this.events = events;
+    this.notes = notes;
+    this.scrollSpeed = scrollSpeed;
+
+    this.generatedBy = SongRegistry.DEFAULT_GENERATEDBY;
+  }
+
+  /**
+   * Produces a string representation suitable for debugging.
+   */
+  public function toString():String
+  {
+    return 'SongChartData[LEGACY:v2.0.0](${this.events.length} events, ${this.notes.size()} difficulties, ${generatedBy})';
+  }
+}
