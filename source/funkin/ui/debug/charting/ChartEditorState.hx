@@ -32,6 +32,7 @@ import funkin.data.notestyle.NoteStyleRegistry;
 import funkin.data.song.SongData.SongCharacterData;
 import funkin.data.song.SongData.SongChartData;
 import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongData.SongMetadata;
 import funkin.data.song.SongData.SongNoteData;
 import funkin.data.song.SongData.SongOffsets;
@@ -4721,7 +4722,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
                   // TODO: Figure out configuring event data.
                   var newEventData:SongEventData = new SongEventData(cursorSnappedMs, eventKindToPlace, eventDataToPlace.copy());
 
-                  performCommand(new AddEventsCommand([newEventData], FlxG.keys.pressed.CONTROL));
+                  performCommand(new AddEventsCommand([new SongEventListData(newEventData.time, [newEventData])], FlxG.keys.pressed.CONTROL));
                 }
                 else
                 {
@@ -4866,12 +4867,14 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
             if (gridGhostEvent == null) throw "ERROR: Tried to handle cursor, but gridGhostEvent is null! Check ChartEditorState.buildGrid()";
 
             var eventData:SongEventData = gridGhostEvent.eventData != null ? gridGhostEvent.eventData : new SongEventData(cursorMs, eventKindToPlace, null);
+            var eventList:SongEventListData = new SongEventListData(eventData.time, [eventData]);
 
             if (eventKindToPlace != eventData.eventKind)
             {
               eventData.eventKind = eventKindToPlace;
             }
             eventData.time = cursorSnappedMs;
+            eventList.time = eventData.time;
 
             gridGhostEvent.visible = true;
             gridGhostEvent.eventData = eventData;

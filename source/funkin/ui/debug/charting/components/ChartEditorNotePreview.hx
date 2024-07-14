@@ -1,6 +1,6 @@
 package funkin.ui.debug.charting.components;
 
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongData.SongNoteData;
 import flixel.math.FlxMath;
 import flixel.FlxSprite;
@@ -70,7 +70,7 @@ class ChartEditorNotePreview extends FlxSprite
    * @param event The data for the event.
    * @param songLengthInMs The total length of the song in milliseconds.
    */
-  public function addEvent(event:SongEventData, songLengthInMs:Int, ?isSelection:Bool = false):Void
+  public function addEvent(event:SongEventListData, songLengthInMs:Int, ?isSelection:Bool = false):Void
   {
     drawNote(-1, false, Std.int(event.time), songLengthInMs, isSelection);
   }
@@ -106,7 +106,7 @@ class ChartEditorNotePreview extends FlxSprite
    * @param events The data for the events.
    * @param songLengthInMs The total length of the song in milliseconds.
    */
-  public function addEvents(events:Array<SongEventData>, songLengthInMs:Int):Void
+  public function addEvents(events:Array<SongEventListData>, songLengthInMs:Int):Void
   {
     for (event in events)
     {
@@ -119,7 +119,7 @@ class ChartEditorNotePreview extends FlxSprite
    * @param events The data for the events.
    * @param songLengthInMs The total length of the song in milliseconds.
    */
-  public function addSelectedEvents(events:Array<SongEventData>, songLengthInMs:Int):Void
+  public function addSelectedEvents(events:Array<SongEventListData>, songLengthInMs:Int):Void
   {
     for (event in events)
     {
