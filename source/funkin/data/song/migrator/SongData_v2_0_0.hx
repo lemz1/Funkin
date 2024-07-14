@@ -140,7 +140,7 @@ class SongChartData_v2_0_0
   // ===========
 
   /**
-   * In chartdata `v2.1.0`, `Events` are a Array<Array<Event>>.
+   * In chartdata `v2.1.0`, `Events` are a Array<SongEventListData>.
    */
   public var events:Array<SongEventData>;
 

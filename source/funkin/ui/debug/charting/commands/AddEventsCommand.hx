@@ -1,6 +1,6 @@
 package funkin.ui.debug.charting.commands;
 
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongDataUtils;
 
 /**
@@ -10,10 +10,10 @@ import funkin.data.song.SongDataUtils;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class AddEventsCommand implements ChartEditorCommand
 {
-  var events:Array<SongEventData>;
+  var events:Array<SongEventListData>;
   var appendToSelection:Bool;
 
-  public function new(events:Array<SongEventData>, appendToSelection:Bool = false)
+  public function new(events:Array<SongEventListData>, appendToSelection:Bool = false)
   {
     this.events = events;
     this.appendToSelection = appendToSelection;

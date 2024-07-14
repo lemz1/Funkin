@@ -1,6 +1,6 @@
 package funkin.ui.debug.charting.commands;
 
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongDataUtils;
 
 /**
@@ -11,9 +11,9 @@ import funkin.data.song.SongDataUtils;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class RemoveEventsCommand implements ChartEditorCommand
 {
-  var events:Array<SongEventData>;
+  var events:Array<SongEventListData>;
 
-  public function new(events:Array<SongEventData>)
+  public function new(events:Array<SongEventListData>)
   {
     this.events = events;
   }

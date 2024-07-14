@@ -1,7 +1,7 @@
 package funkin.ui.debug.charting.commands;
 
 import funkin.data.song.SongData.SongNoteData;
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 
 /**
  * Command that deselects all selected notes and events in the chart editor.
@@ -11,7 +11,7 @@ import funkin.data.song.SongData.SongEventData;
 class DeselectAllItemsCommand implements ChartEditorCommand
 {
   var previousNoteSelection:Array<SongNoteData> = [];
-  var previousEventSelection:Array<SongEventData> = [];
+  var previousEventSelection:Array<SongEventListData> = [];
 
   public function new() {}
 

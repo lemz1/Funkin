@@ -861,7 +861,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * The events which are currently in the user's selection.
    */
-  var currentEventSelection:Array<Array<SongEventData>> = [];
+  var currentEventSelection:Array<SongEventListData> = [];
 
   /**
    * The position where the user clicked to start a selection.
@@ -1357,9 +1357,9 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * Convenience property to get the event data for the current difficulty.
    */
-  var currentSongChartEventData(get, set):Array<SongEventData>;
+  var currentSongChartEventData(get, set):Array<SongEventListData>;
 
-  function get_currentSongChartEventData():Array<SongEventData>
+  function get_currentSongChartEventData():Array<SongEventListData>
   {
     if (currentSongChartData.events == null)
     {
@@ -1369,7 +1369,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     return currentSongChartData.events;
   }
 
-  function set_currentSongChartEventData(value:Array<SongEventData>):Array<SongEventData>
+  function set_currentSongChartEventData(value:Array<SongEventListData>):Array<SongEventListData>
   {
     return currentSongChartData.events = value;
   }
@@ -3523,7 +3523,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
       displayedHoldNoteData.insertionSort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
 
       // Remove events that are no longer visible and list the ones that are.
-      var displayedEventData:Array<SongEventData> = [];
+      var displayedEventData:Array<SongEventListData> = [];
       for (eventSprite in renderedEvents.members)
       {
         if (eventSprite == null || eventSprite.eventData == null || !eventSprite.exists || !eventSprite.visible) continue;
@@ -4234,7 +4234,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
               notesToSelect = SongDataUtils.getNotesInTimeRange(notesToSelect, Math.min(cursorMsStart, cursorMs), Math.max(cursorMsStart, cursorMs));
               notesToSelect = SongDataUtils.getNotesWithData(notesToSelect, columns);
 
-              var eventsToSelect:Array<SongEventData> = [];
+              var eventsToSelect:Array<SongEventListData> = [];
 
               if (columns.indexOf(eventColumn) != -1)
               {
@@ -4719,7 +4719,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
                 {
                   // Create an event and place it in the chart.
                   // TODO: Figure out configuring event data.
-                  var newEventData:SongEventData = new SongEventData(cursorSnappedMs, eventKindToPlace, [for (event in eventDataToPlace) element.copy()]);
+                  var newEventData:SongEventData = new SongEventData(cursorSnappedMs, eventKindToPlace, eventDataToPlace.copy());
 
                   performCommand(new AddEventsCommand([newEventData], FlxG.keys.pressed.CONTROL));
                 }
@@ -5222,7 +5222,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     var playheadPosSnappedMs:Float = playheadPosStep * Conductor.instance.stepLengthMs * noteSnapRatio;
 
     // Look for events within 1 step of the playhead.
-    var eventsAtPos:Array<SongEventData> = SongDataUtils.getEventsInTimeRange(currentSongChartEventData, playheadPosSnappedMs,
+    var eventsAtPos:Array<SongEventListData> = SongDataUtils.getEventsInTimeRange(currentSongChartEventData, playheadPosSnappedMs,
       playheadPosSnappedMs + Conductor.instance.stepLengthMs * noteSnapRatio);
     eventsAtPos = SongDataUtils.getEventsWithKind(eventsAtPos, ['FocusCamera']);
 
@@ -5924,7 +5924,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     });
 
     // TODO: .insertionSort()
-    currentSongChartEventData.sort(function(a:SongEventData, b:SongEventData):Int {
+    currentSongChartEventData.sort(function(a:SongEventListData, b:SongEventListData):Int {
       return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
     });
   }

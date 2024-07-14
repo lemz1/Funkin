@@ -795,18 +795,6 @@ abstract SongEventListData(SongEventListDataRaw) from SongEventListDataRaw to So
 class SongEventDataRaw implements ICloneable<SongEventDataRaw>
 {
   /**
-   * The timestamp of the event. The timestamp is in the format of the song's time format.
-   */
-  @:alias("t")
-  public var time(default, set):Float;
-
-  function set_time(value:Float):Float
-  {
-    _stepTime = null;
-    return time = value;
-  }
-
-  /**
    * The kind of the event.
    * Examples include "FocusCamera" and "PlayAnimation"
    * Custom events can be added by scripts with the `ScriptedSongEvent` class.
@@ -824,6 +812,18 @@ class SongEventDataRaw implements ICloneable<SongEventDataRaw>
   @:jcustomparse(funkin.data.DataParse.dynamicValue)
   @:jcustomwrite(funkin.data.DataWrite.dynamicValue)
   public var value:Dynamic = null;
+
+  /**
+   * The timestamp of the event. The timestamp is in the format of the song's time format.
+   */
+  @:jignored
+  public var time(default, set):Float;
+
+  function set_time(value:Float):Float
+  {
+    _stepTime = null;
+    return time = value;
+  }
 
   /**
    * Whether this event has been activated.

@@ -124,7 +124,7 @@ class SongDataMigrator
 
   public static function migrate_SongChartData_v2_0_0(input:SongData_v2_0_0.SongChartData_v2_0_0):SongMetadata
   {
-    var events:Array<Array<SongEventData>> = [for (event in input.events) [event]];
+    var events:Array<SongEventListData> = [for (event in input.events) new SongEventListData(event.time, [event])];
 
     var result:SongChartData = new SongChartData(input.scrollSpeed, events, input.notes);
     result.version = SongRegistry.SONG_CHART_DATA_VERSION;

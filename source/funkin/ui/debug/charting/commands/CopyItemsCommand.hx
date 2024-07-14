@@ -1,7 +1,7 @@
 package funkin.ui.debug.charting.commands;
 
 import funkin.data.song.SongData.SongNoteData;
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongDataUtils;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -15,9 +15,9 @@ import flixel.tweens.FlxTween;
 class CopyItemsCommand implements ChartEditorCommand
 {
   var notes:Array<SongNoteData>;
-  var events:Array<SongEventData>;
+  var events:Array<SongEventListData>;
 
-  public function new(notes:Array<SongNoteData>, events:Array<SongEventData>)
+  public function new(notes:Array<SongNoteData>, events:Array<SongEventListData>)
   {
     this.notes = notes;
     this.events = events;

@@ -1,7 +1,7 @@
 package funkin.ui.debug.charting.commands;
 
 import funkin.data.song.SongData.SongNoteData;
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongDataUtils;
 
 /**
@@ -13,7 +13,7 @@ import funkin.data.song.SongDataUtils;
 class InvertSelectedItemsCommand implements ChartEditorCommand
 {
   var previousNoteSelection:Array<SongNoteData> = [];
-  var previousEventSelection:Array<SongEventData> = [];
+  var previousEventSelection:Array<SongEventListData> = [];
 
   public function new() {}
 

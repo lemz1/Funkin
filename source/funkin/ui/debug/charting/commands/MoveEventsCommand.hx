@@ -1,6 +1,6 @@
 package funkin.ui.debug.charting.commands;
 
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongData.SongNoteData;
 import funkin.data.song.SongDataUtils;
 
@@ -11,11 +11,11 @@ import funkin.data.song.SongDataUtils;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class MoveEventsCommand implements ChartEditorCommand
 {
-  var events:Array<SongEventData>;
-  var movedEvents:Array<SongEventData>;
+  var events:Array<SongEventListData>;
+  var movedEvents:Array<SongEventListData>;
   var offset:Float;
 
-  public function new(events:Array<SongEventData>, offset:Float)
+  public function new(events:Array<SongEventListData>, offset:Float)
   {
     // Clone the notes to prevent editing from affecting the history.
     this.events = [for (event in events) event.clone()];

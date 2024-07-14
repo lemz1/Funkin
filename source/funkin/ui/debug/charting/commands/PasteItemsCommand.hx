@@ -1,6 +1,6 @@
 package funkin.ui.debug.charting.commands;
 
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 import funkin.data.song.SongData.SongNoteData;
 import funkin.data.song.SongDataUtils;
 import funkin.data.song.SongDataUtils.SongClipboardItems;
@@ -15,7 +15,7 @@ class PasteItemsCommand implements ChartEditorCommand
   var targetTimestamp:Float;
   // Notes we added with this command, for undo.
   var addedNotes:Array<SongNoteData> = [];
-  var addedEvents:Array<SongEventData> = [];
+  var addedEvents:Array<SongEventListData> = [];
 
   public function new(targetTimestamp:Float)
   {
@@ -38,8 +38,8 @@ class PasteItemsCommand implements ChartEditorCommand
 
     addedNotes = SongDataUtils.offsetSongNoteData(currentClipboard.notes, Std.int(targetTimestamp));
     addedNotes = SongDataUtils.clampSongNoteData(addedNotes, 0.0, msCutoff);
-    addedEvents = SongDataUtils.offsetSongEventData(currentClipboard.events, Std.int(targetTimestamp));
-    addedEvents = SongDataUtils.clampSongEventData(addedEvents, 0.0, msCutoff);
+    addedEvents = SongDataUtils.offsetSongEventListData(currentClipboard.events, Std.int(targetTimestamp));
+    addedEvents = SongDataUtils.clampSongEventListData(addedEvents, 0.0, msCutoff);
 
     state.currentSongChartNoteData = state.currentSongChartNoteData.concat(addedNotes);
     state.currentSongChartEventData = state.currentSongChartEventData.concat(addedEvents);

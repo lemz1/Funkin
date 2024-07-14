@@ -1,7 +1,7 @@
 package funkin.ui.debug.charting.commands;
 
 import funkin.data.song.SongData.SongNoteData;
-import funkin.data.song.SongData.SongEventData;
+import funkin.data.song.SongData.SongEventListData;
 
 /**
  * Command to set the current selection in the chart editor (rather than appending it).
@@ -12,11 +12,11 @@ import funkin.data.song.SongData.SongEventData;
 class SetItemSelectionCommand implements ChartEditorCommand
 {
   var notes:Array<SongNoteData>;
-  var events:Array<SongEventData>;
+  var events:Array<SongEventListData>;
   var previousNoteSelection:Array<SongNoteData> = [];
-  var previousEventSelection:Array<SongEventData> = [];
+  var previousEventSelection:Array<SongEventListData> = [];
 
-  public function new(notes:Array<SongNoteData>, events:Array<SongEventData>)
+  public function new(notes:Array<SongNoteData>, events:Array<SongEventListData>)
   {
     this.notes = notes;
     this.events = events;
