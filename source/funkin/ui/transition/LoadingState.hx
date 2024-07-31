@@ -10,6 +10,7 @@ import funkin.graphics.shaders.ScreenWipeShader;
 import funkin.play.PlayState;
 import funkin.play.PlayStatePlaylist;
 import funkin.play.song.Song.SongDifficulty;
+import funkin.util.assets.AsyncAssetLoader;
 import funkin.ui.MusicBeatState;
 import haxe.io.Path;
 import funkin.graphics.FunkinSprite;
@@ -31,11 +32,18 @@ class LoadingState extends MusicBeatSubState
   var target:NextState;
   var playParams:Null<PlayStateParams>;
   var stopMusic:Bool = false;
-  var callbacks:MultiCallback;
   var danceLeft:Bool = false;
 
   var loadBar:FlxSprite;
   var funkay:FlxSprite;
+
+  #if web
+  var callbacks:MultiCallback;
+  #end
+
+  #if (sys && desktop)
+  var numAssets:Int = 0;
+  #end
 
   function new(target:NextState, stopMusic:Bool, playParams:Null<PlayStateParams> = null)
   {
@@ -60,6 +68,7 @@ class LoadingState extends MusicBeatSubState
     loadBar = new FunkinSprite(0, FlxG.height - 20).makeSolidColor(0, 10, 0xFFff16d2);
     add(loadBar);
 
+    #if web
     initSongsManifest().onComplete(function(lib) {
       callbacks = new MultiCallback(onLoad);
       var introComplete = callbacks.add('introComplete');
@@ -94,8 +103,48 @@ class LoadingState extends MusicBeatSubState
       FlxG.camera.fade(FlxG.camera.bgColor, fadeTime, true);
       new FlxTimer().start(fadeTime + MIN_TIME, function(_) introComplete());
     });
+    #end
+
+    #if (sys && desktop)
+    // Load and cache the song's charts.
+    if (playParams?.targetSong != null)
+    {
+      playParams.targetSong.cacheCharts(true);
+    }
+
+    preloadGraphic(Paths.image('healthBar'));
+    preloadGraphic(Paths.image('menuDesat'));
+    preloadGraphic(Paths.image('combo'));
+    preloadGraphic(Paths.image('num0'));
+    preloadGraphic(Paths.image('num1'));
+    preloadGraphic(Paths.image('num2'));
+    preloadGraphic(Paths.image('num3'));
+    preloadGraphic(Paths.image('num4'));
+    preloadGraphic(Paths.image('num5'));
+    preloadGraphic(Paths.image('num6'));
+    preloadGraphic(Paths.image('num7'));
+    preloadGraphic(Paths.image('num8'));
+    preloadGraphic(Paths.image('num9'));
+    preloadGraphic(Paths.image('notes', 'shared'));
+    preloadGraphic(Paths.image('noteSplashes', 'shared'));
+    preloadGraphic(Paths.image('noteStrumline', 'shared'));
+    preloadGraphic(Paths.image('NOTE_hold_assets'));
+    preloadGraphic(Paths.image('ready', 'shared'));
+    preloadGraphic(Paths.image('set', 'shared'));
+    preloadGraphic(Paths.image('go', 'shared'));
+    preloadGraphic(Paths.image('sick', 'shared'));
+    preloadGraphic(Paths.image('good', 'shared'));
+    preloadGraphic(Paths.image('bad', 'shared'));
+    preloadGraphic(Paths.image('shit', 'shared'));
+    preloadGraphic(Paths.image('miss', 'shared'));
+
+    var fadeTime:Float = 0.5;
+    FlxG.camera.fade(FlxG.camera.bgColor, fadeTime, true);
+    new FlxTimer().start(fadeTime + MIN_TIME);
+    #end
   }
 
+  #if web
   function checkLoadSong(path:String):Void
   {
     if (!Assets.cache.hasSound(path))
@@ -127,6 +176,21 @@ class LoadingState extends MusicBeatSubState
       });
     }
   }
+  #end
+
+  #if (sys && desktop)
+  function preloadGraphic(path:String):Void
+  {
+    numAssets++;
+    AsyncAssetLoader.loadGraphic(path);
+  }
+
+  function preloadSound(path:String):Void
+  {
+    numAssets++;
+    AsyncAssetLoader.loadSound(path);
+  }
+  #end
 
   override function beatHit():Bool
   {
@@ -157,6 +221,7 @@ class LoadingState extends MusicBeatSubState
       // funkay.screenCenter();
     }
 
+    #if web
     if (callbacks != null)
     {
       targetShit = FlxMath.remapToRange(callbacks.numRemaining / callbacks.length, 1, 0, 0, 1);
@@ -176,6 +241,36 @@ class LoadingState extends MusicBeatSubState
 
     #if debug
     if (FlxG.keys.justPressed.SPACE) trace('fired: ' + callbacks.getFired() + ' unfired:' + callbacks.getUnfired());
+    #end
+    #end
+
+    #if (sys && desktop)
+    var remaining:Int = AsyncAssetLoader.remaining;
+
+    targetShit = FlxMath.remapToRange(remaining / numAssets, 1, 0, 0, 1);
+
+    var lerpWidth:Int = Std.int(FlxMath.lerp(loadBar.width, FlxG.width * targetShit, 0.2));
+
+    if (lerpWidth > 0)
+    {
+      loadBar.setGraphicSize(lerpWidth, loadBar.height);
+      loadBar.updateHitbox();
+    }
+    FlxG.watch.addQuick('percentage?', remaining / numAssets);
+
+    #if debug
+    if (FlxG.keys.justPressed.SPACE) trace('remaining: $remaining');
+    #end
+
+    if (remaining == 0)
+    {
+      if (!(playParams?.minimalMode ?? false))
+      {
+        // calling this so that it is in FunkinSprite cache
+        preloadLevelAssets();
+      }
+      onLoad();
+    }
     #end
   }
 
@@ -228,14 +323,14 @@ class LoadingState extends MusicBeatSubState
       };
     }
 
-    #if NO_PRELOAD_ALL
-    // Switch to loading state while we load assets (default on HTML5 target).
     var loadStateCtor = function() {
       var result = new LoadingState(playStateCtor, shouldStopMusic, params);
       @:privateAccess
       result.asSubState = asSubState;
       return result;
     }
+
+    #if NO_PRELOAD_ALL
     if (asSubState)
     {
       FlxG.state.openSubState(cast loadStateCtor());
@@ -245,31 +340,40 @@ class LoadingState extends MusicBeatSubState
       FlxG.switchState(loadStateCtor);
     }
     #else
-    // All assets preloaded, switch directly to play state (defualt on other targets).
-    if (shouldStopMusic && FlxG.sound.music != null)
-    {
-      FlxG.sound.music.destroy();
-      FlxG.sound.music = null;
-    }
-
-    // Load and cache the song's charts.
-    // Don't do this if we already provided the music and charts.
-    if (params?.targetSong != null && !params.overrideMusic)
-    {
-      params.targetSong.cacheCharts(true);
-    }
-
     var shouldPreloadLevelAssets:Bool = !(params?.minimalMode ?? false);
 
-    if (shouldPreloadLevelAssets) preloadLevelAssets();
-
-    if (asSubState)
+    if (!shouldPreloadLevelAssets)
     {
-      FlxG.state.openSubState(cast playStateCtor());
+      if (shouldStopMusic && FlxG.sound.music != null)
+      {
+        FlxG.sound.music.destroy();
+        FlxG.sound.music = null;
+      }
+
+      if (params?.targetSong != null && !params.overrideMusic)
+      {
+        params.targetSong.cacheCharts(true);
+      }
+
+      if (asSubState)
+      {
+        FlxG.state.openSubState(cast playStateCtor());
+      }
+      else
+      {
+        FlxG.switchState(playStateCtor);
+      }
     }
     else
     {
-      FlxG.switchState(playStateCtor);
+      if (asSubState)
+      {
+        FlxG.state.openSubState(cast loadStateCtor());
+      }
+      else
+      {
+        FlxG.switchState(loadStateCtor);
+      }
     }
     #end
   }
@@ -365,9 +469,12 @@ class LoadingState extends MusicBeatSubState
   {
     super.destroy();
 
+    #if web
     callbacks = null;
+    #end
   }
 
+  #if web
   static function initSongsManifest():Future<AssetLibrary>
   {
     var id = 'songs';
@@ -431,6 +538,7 @@ class LoadingState extends MusicBeatSubState
 
     return promise.future;
   }
+  #end
 }
 
 class MultiCallback
