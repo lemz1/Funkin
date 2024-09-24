@@ -120,6 +120,7 @@ class Save
           // No mods enabled.
           enabledMods: [],
           modOptions: [],
+          outdatedMods: [],
         },
 
       unlocks:
@@ -195,6 +196,20 @@ class Save
     data.mods.enabledMods = value;
     flush();
     return data.mods.enabledMods;
+  }
+
+  public var outdatedModIds(get, set):Array<String>;
+
+  function get_outdatedModIds():Array<String>
+  {
+    return data.mods.outdatedMods;
+  }
+
+  function set_outdatedModIds(value:Array<String>):Array<String>
+  {
+    data.mods.outdatedMods = value;
+    flush();
+    return data.mods.outdatedMods;
   }
 
   public var chartEditorPreviousFiles(get, set):Array<String>;
@@ -1081,6 +1096,8 @@ typedef SaveDataMods =
   // TODO: Make this not trip up the serializer when debugging.
   @:jignored
   var modOptions:Map<String, Dynamic>;
+
+  var outdatedMods:Array<String>;
 }
 
 /**

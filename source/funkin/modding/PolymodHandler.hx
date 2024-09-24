@@ -59,7 +59,7 @@ class PolymodHandler
     null
     #end;
 
-  public static var outdatedModIds(default, null):Array<String> = [];
+  public static var outdatedMods(default, null):Array<ModMetadata> = [];
 
   public static var loadedModIds:Array<String> = [];
 
@@ -357,17 +357,14 @@ class PolymodHandler
       });
     trace('Found ${modMetadata.length} mods when scanning.');
 
-    outdatedModIds = [];
+    outdatedMods = [];
     for (data in outdatedModMetadata)
     {
-      if (modMetadata.contains(data))
+      if (!modMetadata.contains(data))
       {
-        continue;
+        outdatedMods.push(data);
       }
-
-      outdatedModIds.push(data.id);
     }
-    trace('outdated mods: ${outdatedModIds}');
 
     return modMetadata;
   }
@@ -440,5 +437,19 @@ class PolymodHandler
     CharacterDataParser.loadCharacterCache(); // TODO: Migrate characters to BaseRegistry.
     NoteKindManager.loadScripts();
     ModuleHandler.loadModuleCache();
+  }
+
+  public static function getNewOutdatedMods():Array<ModMetadata>
+  {
+    var newOutdatedMods:Array<ModMetadata> = [];
+    for (mod in outdatedMods)
+    {
+      if (!Save.instance.outdatedModIds.contains(mod.id))
+      {
+        newOutdatedMods.push(mod);
+        Save.instance.outdatedModIds.push(mod.id);
+      }
+    }
+    return newOutdatedMods;
   }
 }

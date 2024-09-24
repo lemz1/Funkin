@@ -1,19 +1,14 @@
 package funkin.ui.modding;
 
-import funkin.ui.debug.modding.components.ModBox;
-import funkin.ui.mainmenu.MainMenuState;
+import flixel.FlxG;
+import funkin.ui.title.TitleState;
+import funkin.modding.PolymodHandler;
 import funkin.graphics.FunkinCamera;
 import funkin.audio.FunkinSound;
-import funkin.input.Cursor;
-import funkin.modding.PolymodHandler;
 import funkin.save.Save;
+import funkin.input.Cursor;
 import haxe.ui.backend.flixel.UIState;
-import polymod.Polymod.ModMetadata;
-import flixel.graphics.frames.FlxFrame;
-import flixel.graphics.FlxGraphic;
-import flixel.math.FlxRect;
-import flixel.FlxG;
-import openfl.display.BitmapData;
+import haxe.ui.components.Label;
 
 /**
  * A state for enabling and reordering mods.
@@ -32,6 +27,15 @@ class OutdatedModsState extends UIState // UIState derives from MusicBeatState
   {
     super.create();
 
+    for (mod in PolymodHandler.getNewOutdatedMods())
+    {
+      var label:Label = new Label();
+      label.value = '${mod.title} (v${mod.apiVersion}, id: ${mod.id})';
+      outdatedMods.addComponent(label);
+
+      Save.instance.outdatedModIds.push(mod.id);
+    }
+
     Cursor.show();
 
     uiCamera = new FunkinCamera('outdatedModsStateUI');
@@ -42,10 +46,10 @@ class OutdatedModsState extends UIState // UIState derives from MusicBeatState
   {
     super.update(elapsed);
 
-    // if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.Q)
-    // {
-    //   quitModState();
-    // }
+    if ((FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.Q) || controls.ACCEPT || controls.BACK)
+    {
+      FlxG.switchState(() -> new TitleState());
+    }
   }
 
   override function destroy():Void
