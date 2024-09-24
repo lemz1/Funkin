@@ -27,6 +27,11 @@ import polymod.Polymod;
 class PolymodHandler
 {
   /**
+   * The default version rule, which is used to check outdated mods
+   */
+  static final DEFAULT_API_VERSION_RULE:String = "*.*.*";
+
+  /**
    * The API version that mods should comply with.
    * Indicates which mods are compatible with this version of the game.
    * Minor updates rarely impact mods but major versions often do.
@@ -53,6 +58,8 @@ class PolymodHandler
     #else
     null
     #end;
+
+  public static var outdatedModIds(default, null):Array<String> = [];
 
   public static var loadedModIds:Array<String> = [];
 
@@ -333,6 +340,14 @@ class PolymodHandler
 
     if (modFileSystem == null) modFileSystem = buildFileSystem();
 
+    var outdatedModMetadata:Array<ModMetadata> = Polymod.scan(
+      {
+        modRoot: MOD_FOLDER,
+        apiVersionRule: DEFAULT_API_VERSION_RULE,
+        fileSystem: modFileSystem,
+        errorCallback: PolymodErrorHandler.onPolymodError
+      });
+
     var modMetadata:Array<ModMetadata> = Polymod.scan(
       {
         modRoot: MOD_FOLDER,
@@ -341,6 +356,19 @@ class PolymodHandler
         errorCallback: PolymodErrorHandler.onPolymodError
       });
     trace('Found ${modMetadata.length} mods when scanning.');
+
+    outdatedModIds = [];
+    for (data in outdatedModMetadata)
+    {
+      if (modMetadata.contains(data))
+      {
+        continue;
+      }
+
+      outdatedModIds.push(data.id);
+    }
+    trace('outdated mods: ${outdatedModIds}');
+
     return modMetadata;
   }
 
