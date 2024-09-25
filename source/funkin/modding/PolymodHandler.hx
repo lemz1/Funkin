@@ -36,7 +36,7 @@ class PolymodHandler
    * Indicates which mods are compatible with this version of the game.
    * Minor updates rarely impact mods but major versions often do.
    */
-  public static final API_VERSION:String = "0.5.0"; // Constants.VERSION;
+  public static final API_VERSION:String = "0.5.*"; // Constants.VERSION;
 
   /**
    * Where relative to the executable that mods are located.
