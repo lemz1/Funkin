@@ -30,7 +30,6 @@ import funkin.data.song.SongRegistry;
 import funkin.play.character.CharacterData.CharacterDataParser;
 import funkin.play.notes.notekind.NoteKindManager;
 import funkin.modding.module.ModuleHandler;
-import funkin.modding.PolymodHandler;
 import funkin.ui.title.TitleState;
 import funkin.util.CLIUtil;
 import funkin.util.CLIUtil.CLIParams;
@@ -284,14 +283,7 @@ class InitState extends FlxState
     {
       FlxG.sound.cache(Paths.music('freakyMenu/freakyMenu'));
 
-      if (PolymodHandler.getNewOutdatedMods().length > 0)
-      {
-        FlxG.switchState(() -> new funkin.ui.modding.OutdatedModsState());
-      }
-      else
-      {
-        FlxG.switchState(() -> new TitleState());
-      }
+      FlxG.switchState(() -> new TitleState());
     }
   }
 

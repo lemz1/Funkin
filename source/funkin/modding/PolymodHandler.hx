@@ -29,14 +29,14 @@ class PolymodHandler
   /**
    * The default version rule, which is used to check outdated mods
    */
-  static final DEFAULT_API_VERSION_RULE:String = "*.*.*";
+  public static final DEFAULT_API_VERSION_RULE:String = "*.*.*";
 
   /**
    * The API version that mods should comply with.
    * Indicates which mods are compatible with this version of the game.
    * Minor updates rarely impact mods but major versions often do.
    */
-  static final API_VERSION:String = "0.5.0"; // Constants.VERSION;
+  public static final API_VERSION:String = "0.5.0"; // Constants.VERSION;
 
   /**
    * Where relative to the executable that mods are located.
@@ -437,19 +437,5 @@ class PolymodHandler
     CharacterDataParser.loadCharacterCache(); // TODO: Migrate characters to BaseRegistry.
     NoteKindManager.loadScripts();
     ModuleHandler.loadModuleCache();
-  }
-
-  public static function getNewOutdatedMods():Array<ModMetadata>
-  {
-    var newOutdatedMods:Array<ModMetadata> = [];
-    for (mod in outdatedMods)
-    {
-      if (!Save.instance.outdatedModIds.contains(mod.id))
-      {
-        newOutdatedMods.push(mod);
-        Save.instance.outdatedModIds.push(mod.id);
-      }
-    }
-    return newOutdatedMods;
   }
 }
