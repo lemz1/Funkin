@@ -19,6 +19,7 @@ import funkin.util.FileUtil;
 import funkin.util.macro.ClassMacro;
 import polymod.backends.PolymodAssets.PolymodAssetType;
 import polymod.format.ParseRules.TextFileFormat;
+import polymod.util.VersionUtil;
 import polymod.Polymod;
 
 /**
@@ -26,11 +27,6 @@ import polymod.Polymod;
  */
 class PolymodHandler
 {
-  /**
-   * The default version rule, which is used to check outdated mods
-   */
-  public static final DEFAULT_API_VERSION_RULE:String = "*.*.*";
-
   /**
    * The API version that mods should comply with.
    * Indicates which mods are compatible with this version of the game.
@@ -340,33 +336,30 @@ class PolymodHandler
 
     if (modFileSystem == null) modFileSystem = buildFileSystem();
 
-    var outdatedModMetadata:Array<ModMetadata> = Polymod.scan(
-      {
-        modRoot: MOD_FOLDER,
-        apiVersionRule: DEFAULT_API_VERSION_RULE,
-        fileSystem: modFileSystem,
-        errorCallback: PolymodErrorHandler.onPolymodError
-      });
-
     var modMetadata:Array<ModMetadata> = Polymod.scan(
       {
         modRoot: MOD_FOLDER,
-        apiVersionRule: API_VERSION,
+        apiVersionRule: VersionUtil.DEFAULT_VERSION_RULE,
         fileSystem: modFileSystem,
         errorCallback: PolymodErrorHandler.onPolymodError
       });
-    trace('Found ${modMetadata.length} mods when scanning.');
 
     outdatedMods = [];
-    for (data in outdatedModMetadata)
+    var validMods:Array<ModMetadata> = [];
+
+    for (data in modMetadata)
     {
-      if (!modMetadata.contains(data))
+      if (!VersionUtil.match(data.apiVersion, API_VERSION))
       {
         outdatedMods.push(data);
       }
+      else
+      {
+        validMods.push(data);
+      }
     }
 
-    return modMetadata;
+    return validMods;
   }
 
   /**
