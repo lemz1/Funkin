@@ -1,19 +1,23 @@
 package funkin.ui.title;
 
+import lime.app.Application;
+import haxe.Http;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.MusicBeatSubState;
-import lime.app.Application;
-import haxe.Http;
+import funkin.util.Constants;
+import funkin.util.VersionUtil;
+import funkin.input.Controls;
 
+@:access(funkin.input.Controls)
 class OutdatedSubState extends MusicBeatSubState
 {
   public static var leftState:Bool = false;
 
-  static final URL:String = "https://raw.githubusercontent.com/FunkinCrew/Funkin/main/Project.xml";
+  static final URL:String = "https://raw.githubusercontent.com/FunkinCrew/Funkin/refs/heads/main/project.hxp";
 
   static var currentVersion:Null<String> = null;
   static var newVersion:Null<String> = null;
@@ -27,7 +31,7 @@ class OutdatedSubState extends MusicBeatSubState
       retrieveVersions();
     }
 
-    return currentVersion != newVersion;
+    return VersionUtil.validateVersionStr(currentVersion, "<" + newVersion);
   }
 
   override function create():Void
@@ -39,10 +43,11 @@ class OutdatedSubState extends MusicBeatSubState
 
     var txt:FlxText = new FlxText(0, 0, FlxG.width,
       "HEY! You're running an outdated version of the game!\nCurrent version is "
-      + 'v$currentVersion'
+      + currentVersion
       + " while the most recent version is "
-      + 'v$newVersion'
-      + "! Press Space to go to itch.io, or ESCAPE to ignore this!!",
+      + newVersion
+      + '!\n Press ACCEPT-Button to go to itch.io, '
+      + '\nor BACK-Button to ignore this!!',
       32);
     txt.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
     txt.screenCenter();
@@ -79,15 +84,14 @@ class OutdatedSubState extends MusicBeatSubState
     var http:Http = new Http(URL);
 
     http.onData = function(data:String) {
-      var xml:Xml = Xml.parse(data);
-      var project:Xml = xml.elementsNamed("project").next();
-      var app:Xml = project.elementsNamed("app").next();
-
-      newVersion = app.get("version").toString();
+      // we love our regexes
+      var regex = ~/static\s+final\s+VERSION:String\s*=\s*"([^"]+)"/;
+      newVersion = regex.match(data) ? regex.matched(1) : Constants.VERSION;
     };
 
     http.request(false);
 
-    currentVersion = Application.current.meta.get('version');
+    newVersion = newVersion ?? Constants.VERSION; // if http request failed use current version
+    currentVersion = "0.4.1";
   }
 }
