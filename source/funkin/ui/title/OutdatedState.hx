@@ -7,22 +7,24 @@ import flixel.FlxSubState;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.graphics.FunkinSprite;
-import funkin.ui.MusicBeatSubState;
+import funkin.ui.MusicBeatState;
 import funkin.util.Constants;
 import funkin.util.VersionUtil;
 import funkin.input.Controls;
 
-@:access(funkin.input.Controls)
-class OutdatedSubState extends MusicBeatSubState
+/**
+ * Class that notifies the player that there is an update
+ */
+class OutdatedState extends MusicBeatState
 {
-  public static var leftState:Bool = false;
-
   static final URL:String = "https://raw.githubusercontent.com/FunkinCrew/Funkin/refs/heads/main/project.hxp";
+
+  public static var outdated(get, never):Bool;
 
   static var currentVersion:Null<String> = null;
   static var newVersion:Null<String> = null;
 
-  public static var outdated(get, never):Bool;
+  var leftState:Bool = false;
 
   static function get_outdated():Bool
   {
@@ -61,10 +63,18 @@ class OutdatedSubState extends MusicBeatSubState
 
   override function update(elapsed:Float):Void
   {
+    super.update(elapsed);
+
+    if (leftState)
+    {
+      return;
+    }
+
     if (controls.ACCEPT)
     {
       FlxG.openURL("https://ninja-muffin24.itch.io/funkin");
     }
+
     if (controls.BACK)
     {
       leftState = true;
@@ -74,9 +84,8 @@ class OutdatedSubState extends MusicBeatSubState
         FlxG.sound.music.resume();
       }
 
-      this.close();
+      FlxG.switchState(() -> new TitleState());
     }
-    super.update(elapsed);
   }
 
   static function retrieveVersions():Void
@@ -92,6 +101,11 @@ class OutdatedSubState extends MusicBeatSubState
     http.request(false);
 
     newVersion = newVersion ?? Constants.VERSION; // if http request failed use current version
-    currentVersion = "0.4.1";
+    currentVersion = Constants.VERSION;
+  }
+
+  public static function build():MusicBeatState
+  {
+    return outdated ? new OutdatedState() : new TitleState();
   }
 }

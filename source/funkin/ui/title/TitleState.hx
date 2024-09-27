@@ -27,7 +27,6 @@ import openfl.events.AsyncErrorEvent;
 import funkin.ui.mainmenu.MainMenuState;
 import openfl.events.MouseEvent;
 import openfl.events.NetStatusEvent;
-import funkin.ui.title.OutdatedSubState;
 import openfl.media.Video;
 import openfl.net.NetStream;
 import funkin.api.newgrounds.NGio;
@@ -68,24 +67,11 @@ class TitleState extends MusicBeatState
     // DEBUG BULLSHIT
 
     // netConnection.addEventListener(MouseEvent.MOUSE_DOWN, overlay_onMouseDown);
-    if (!initialized)
-    {
-      new FlxTimer().start(1, function(tmr:FlxTimer) {
-        // TODO: maybe add a preprocessor which only enables this check for base version and disables for mods
-        #if (!web && !debug)
-        if (OutdatedSubState.outdated && !OutdatedSubState.leftState)
-        {
-          this.persistentUpdate = false;
-          this.openSubState(new OutdatedSubState());
-        }
-        #end
-        startIntro();
-      });
-    }
-    else
-    {
+    if (!initialized) new FlxTimer().start(1, function(tmr:FlxTimer) {
       startIntro();
-    }
+    });
+    else
+      startIntro();
   }
 
   function client_onMetaData(metaData:Dynamic)
