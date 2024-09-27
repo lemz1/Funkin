@@ -371,11 +371,9 @@ class TitleState extends MusicBeatState
     super.update(elapsed);
   }
 
-  override function closeSubState():Void
+  override function draw()
   {
-    super.closeSubState();
-
-    this.persistentUpdate = true;
+    super.draw();
   }
 
   var cheatArray:Array<Int> = [0x0001, 0x0010, 0x0001, 0x0010, 0x0100, 0x1000, 0x0100, 0x1000];
