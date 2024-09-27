@@ -106,6 +106,10 @@ class OutdatedState extends MusicBeatState
 
   public static function build():MusicBeatState
   {
+    #if debug
+    return new TitleState();
+    #else
     return outdated ? new OutdatedState() : new TitleState();
+    #end
   }
 }
