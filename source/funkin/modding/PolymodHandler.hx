@@ -28,11 +28,19 @@ import polymod.Polymod;
 class PolymodHandler
 {
   /**
-   * The API version that mods should comply with.
-   * Indicates which mods are compatible with this version of the game.
+   * The API version for the current version of the game. Since 0.5.0, we've just made this the game version!
    * Minor updates rarely impact mods but major versions often do.
    */
-  public static final API_VERSION:String = "0.5.*"; // Constants.VERSION;
+
+  // static final API_VERSION:String = Constants.VERSION;
+
+  /**
+   * The Semantic Versioning rule
+   * Indicates which mods are compatible with this version of the game.
+   * Using more complex rules allows mods from older compatible versions to stay functioning,
+   * while preventing mods made for future versions from being installed.
+   */
+  static final API_VERSION_RULE:String = ">=0.5.0 <0.6.0";
 
   /**
    * Where relative to the executable that mods are located.
@@ -134,7 +142,7 @@ class PolymodHandler
         // Framework being used to load assets.
         framework: OPENFL,
         // The current version of our API.
-        apiVersionRule: API_VERSION,
+        apiVersionRule: API_VERSION_RULE,
         // Call this function any time an error occurs.
         errorCallback: PolymodErrorHandler.onPolymodError,
         // Enforce semantic version patterns for each mod.
@@ -231,6 +239,8 @@ class PolymodHandler
   static function buildImports():Void
   {
     // Add default imports for common classes.
+    Polymod.addDefaultImport(funkin.Assets);
+    Polymod.addDefaultImport(funkin.Paths);
 
     // Add import aliases for certain classes.
     // NOTE: Scripted classes are automatically aliased to their parent class.
@@ -261,7 +271,7 @@ class PolymodHandler
     Polymod.blacklistImport('cpp.Lib');
 
     // `Unserializer`
-    // Unserializerr.DEFAULT_RESOLVER.resolveClass() can access blacklisted packages
+    // Unserializer.DEFAULT_RESOLVER.resolveClass() can access blacklisted packages
     Polymod.blacklistImport('Unserializer');
 
     // `lime.system.CFFI`
