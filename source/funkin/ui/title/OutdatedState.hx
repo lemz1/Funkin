@@ -1,24 +1,31 @@
 package funkin.ui.title;
 
-import lime.app.Application;
 import haxe.Http;
-import flixel.FlxSprite;
-import flixel.FlxSubState;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.MusicBeatState;
 import funkin.util.Constants;
 import funkin.util.VersionUtil;
-import funkin.input.Controls;
+import htmlparser.HtmlDocument;
+import htmlparser.HtmlNodeElement;
+
+using StringTools;
 
 /**
  * Class that notifies the player that there is an update
  */
 class OutdatedState extends MusicBeatState
 {
-  static final URL:String = "https://raw.githubusercontent.com/FunkinCrew/Funkin/refs/heads/main/project.hxp";
+  static final URL:String = 'https://ninja-muffin24.itch.io/funkin';
 
+  #if windows static final OS_CHECK:String = 'Windows'; #end
+  #if mac static final OS_CHECK:String = 'macOS'; #end
+  #if linux static final OS_CHECK:String = 'Linux'; #end
+
+  /**
+   * Whether the game is outdated or not
+   */
   public static var outdated(get, never):Bool;
 
   static var currentVersion:Null<String> = null;
@@ -33,7 +40,7 @@ class OutdatedState extends MusicBeatState
       retrieveVersions();
     }
 
-    return VersionUtil.validateVersionStr(currentVersion, "<" + newVersion);
+    return VersionUtil.validateVersionStr(currentVersion, '<' + newVersion);
   }
 
   override function create():Void
@@ -44,14 +51,14 @@ class OutdatedState extends MusicBeatState
     add(bg);
 
     var txt:FlxText = new FlxText(0, 0, FlxG.width,
-      "HEY! You're running an outdated version of the game!\nCurrent version is "
+      'HEY! You\'re running an outdated version of the game!\nCurrent version is '
       + currentVersion
-      + " while the most recent version is "
+      + ' while the most recent version is '
       + newVersion
       + '!\n Press ACCEPT-Button to go to itch.io, '
       + '\nor BACK-Button to ignore this!!',
       32);
-    txt.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+    txt.setFormat('VCR OSD Mono', 32, FlxColor.WHITE, CENTER);
     txt.screenCenter();
     add(txt);
 
@@ -72,7 +79,7 @@ class OutdatedState extends MusicBeatState
 
     if (controls.ACCEPT)
     {
-      FlxG.openURL("https://ninja-muffin24.itch.io/funkin");
+      FlxG.openURL('https://ninja-muffin24.itch.io/funkin');
     }
 
     if (controls.BACK)
@@ -88,15 +95,17 @@ class OutdatedState extends MusicBeatState
     }
   }
 
-  static function testItch():Void
+  static function retrieveVersions():Void
   {
-    var url = "https://ninja-muffin24.itch.io/funkin";
+    // i wanted to use the itch io api
+    // but i couldnt find a way to get the uploaded files
+    // so instead im just gonna parse the html
 
-    var html:Null<String> = null;
+    var html:Null<HtmlDocument> = null;
 
-    var http = new Http(url);
+    var http:Http = new Http(URL);
     http.onData = function(data) {
-      html = data;
+      html = new HtmlDocument(data);
     };
     http.request(false);
 
@@ -105,33 +114,32 @@ class OutdatedState extends MusicBeatState
       return;
     }
 
-    trace(html);
-  }
+    var uploadedFiles:Array<HtmlNodeElement> = html.find('.upload');
 
-  static function retrieveVersions():Void
-  {
-    testItch();
+    for (file in uploadedFiles)
+    {
+      var os:String = file.find('.download_platforms')[0].children[0].getAttribute('title');
+      if (!os.endsWith(OS_CHECK))
+      {
+        continue;
+      }
 
-    var http:Http = new Http(URL);
+      newVersion = file.find('.version_name')[0].innerHTML.replace('Version', '').trim();
+    }
 
-    http.onData = function(data:String) {
-      // we love our regexes
-      var regex = ~/static\s+final\s+VERSION:String\s*=\s*"([^"]+)"/;
-      newVersion = regex.match(data) ? regex.matched(1) : Constants.VERSION;
-    };
-
-    http.request(false);
-
-    newVersion = newVersion ?? Constants.VERSION; // if http request failed use current version
+    newVersion = newVersion ?? Constants.VERSION;
     currentVersion = Constants.VERSION;
   }
 
+  /**
+   * @return `OutdatedState` or `TitleState`
+   */
   public static function build():MusicBeatState
   {
-    // #if debug
-    // return new TitleState();
-    // #else
+    #if debug
+    return new TitleState();
+    #else
     return outdated ? new OutdatedState() : new TitleState();
-    // #end
+    #end
   }
 }
