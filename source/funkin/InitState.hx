@@ -24,7 +24,6 @@ import funkin.data.story.level.LevelRegistry;
 import funkin.modding.module.ModuleHandler;
 import funkin.play.character.CharacterData.CharacterDataParser;
 import funkin.play.notes.notekind.NoteKindManager;
-import funkin.modding.module.ModuleHandler;
 import funkin.ui.title.OutdatedState;
 import funkin.play.PlayStatePlaylist;
 import funkin.ui.debug.charting.ChartEditorState;
