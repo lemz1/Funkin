@@ -88,8 +88,30 @@ class OutdatedState extends MusicBeatState
     }
   }
 
+  static function testItch():Void
+  {
+    var url = "https://ninja-muffin24.itch.io/funkin";
+
+    var html:Null<String> = null;
+
+    var http = new Http(url);
+    http.onData = function(data) {
+      html = data;
+    };
+    http.request(false);
+
+    if (html == null)
+    {
+      return;
+    }
+
+    trace(html);
+  }
+
   static function retrieveVersions():Void
   {
+    testItch();
+
     var http:Http = new Http(URL);
 
     http.onData = function(data:String) {
@@ -106,10 +128,10 @@ class OutdatedState extends MusicBeatState
 
   public static function build():MusicBeatState
   {
-    #if debug
-    return new TitleState();
-    #else
+    // #if debug
+    // return new TitleState();
+    // #else
     return outdated ? new OutdatedState() : new TitleState();
-    #end
+    // #end
   }
 }
