@@ -6467,11 +6467,6 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     audioVocalTrackGroup.clear();
   }
 
-  function getStackedNotes()
-  {
-    for (note in renderedNotes) {}
-  }
-
   function isNoteSelected(note:Null<SongNoteData>):Bool
   {
     return note != null && currentNoteSelection.indexOf(note) != -1;
