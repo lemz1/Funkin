@@ -1,18 +1,8 @@
 package funkin.ui.debug.charting.dialogs;
 
-import funkin.input.Cursor;
-import funkin.ui.debug.charting.dialogs.ChartEditorBaseDialog.DialogDropTarget;
 import funkin.ui.debug.charting.dialogs.ChartEditorBaseDialog.DialogParams;
-import funkin.util.FileUtil;
-import funkin.play.character.CharacterData;
-import haxe.io.Path;
-import haxe.ui.components.Button;
-import haxe.ui.components.Label;
+import funkin.ui.debug.charting.components.ChartEditorChannelItem;
 import haxe.ui.containers.dialogs.Dialog.DialogButton;
-import haxe.ui.containers.dialogs.Dialog.DialogEvent;
-import haxe.ui.containers.Box;
-import haxe.ui.containers.dialogs.Dialogs;
-import haxe.ui.core.Component;
 
 // @:nullSafety // TODO: Fix null safety when used with HaxeUI build macros.
 @:build(haxe.ui.ComponentBuilder.build("assets/exclude/data/ui/chart-editor/dialogs/generate-chart.xml"))
@@ -36,6 +26,8 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
       // Dismiss
       hideDialog(DialogButton.APPLY);
     };
+
+    channelView.addComponent(new ChartEditorChannelItem(channelView));
   }
 
   public override function lock():Void
