@@ -1,5 +1,6 @@
 package funkin.ui.debug.charting.handlers;
 
+import funkin.ui.debug.charting.dialogs.ChartEditorGenerateChartDialog;
 import flixel.util.FlxTimer;
 import funkin.data.song.importer.FNFLegacyData;
 import funkin.data.song.importer.FNFLegacyImporter;
@@ -134,6 +135,22 @@ class ChartEditorDialogHandler
     var charIdsForVocals:Array<String> = [charData.player, charData.opponent];
 
     var dialog = ChartEditorUploadVocalsDialog.build(state, charIdsForVocals, closable);
+
+    dialog.zIndex = 1000;
+    state.isHaxeUIDialogOpen = true;
+
+    return dialog;
+  }
+
+  /**
+   * Builds and opens a dialog where the user uploads vocals for the current song.
+   * @param state The current chart editor state.
+   * @param closable Whether the dialog can be closed by the user.
+   * @return The dialog that was opened.
+   */
+  public static function openGenerateChartDialog(state:ChartEditorState, closable:Bool = true):Dialog
+  {
+    var dialog = ChartEditorGenerateChartDialog.build(state, closable);
 
     dialog.zIndex = 1000;
     state.isHaxeUIDialogOpen = true;
@@ -337,11 +354,22 @@ class ChartEditorDialogHandler
             // Step 3. Upload Vocals
             // NOTE: Uploading vocals is optional, so we don't need to check if the user cancelled the wizard.
             var uploadVocalsDialog:Dialog = openUploadVocalsDialog(state, closable); // var uploadVocalsDialog:Dialog
-            uploadVocalsDialog.onDialogClosed = function(_) {
-              state.isHaxeUIDialogOpen = false;
-              state.currentWorkingFilePath = null; // New file, so no path.
-              state.switchToCurrentInstrumental();
-              state.postLoadInstrumental();
+            uploadVocalsDialog.onDialogClosed = function(event) {
+              var generateChartDialog:Dialog = openGenerateChartDialog(state, closable);
+              generateChartDialog.onDialogClosed = function(_) {
+                if (event.button == DialogButton.APPLY)
+                {
+                  state.isHaxeUIDialogOpen = false;
+                  state.currentWorkingFilePath = null; // New file, so no path.
+                  state.switchToCurrentInstrumental();
+                  state.postLoadInstrumental();
+                }
+                else
+                {
+                  // User cancelled the wizard at Step 4! Back to the welcome dialog.
+                  state.openWelcomeDialog(closable);
+                }
+              }
             }
           }
           else
