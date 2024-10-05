@@ -354,7 +354,7 @@ class ChartEditorDialogHandler
             // Step 3. Upload Vocals
             // NOTE: Uploading vocals is optional, so we don't need to check if the user cancelled the wizard.
             var uploadVocalsDialog:Dialog = openUploadVocalsDialog(state, closable); // var uploadVocalsDialog:Dialog
-            uploadVocalsDialog.onDialogClosed = function(event) {
+            uploadVocalsDialog.onDialogClosed = function(_) {
               state.isHaxeUIDialogOpen = false;
               state.currentWorkingFilePath = null; // New file, so no path.
               state.switchToCurrentInstrumental();
