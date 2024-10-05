@@ -355,21 +355,10 @@ class ChartEditorDialogHandler
             // NOTE: Uploading vocals is optional, so we don't need to check if the user cancelled the wizard.
             var uploadVocalsDialog:Dialog = openUploadVocalsDialog(state, closable); // var uploadVocalsDialog:Dialog
             uploadVocalsDialog.onDialogClosed = function(event) {
-              var generateChartDialog:Dialog = openGenerateChartDialog(state, closable);
-              generateChartDialog.onDialogClosed = function(_) {
-                if (event.button == DialogButton.APPLY)
-                {
-                  state.isHaxeUIDialogOpen = false;
-                  state.currentWorkingFilePath = null; // New file, so no path.
-                  state.switchToCurrentInstrumental();
-                  state.postLoadInstrumental();
-                }
-                else
-                {
-                  // User cancelled the wizard at Step 4! Back to the welcome dialog.
-                  state.openWelcomeDialog(closable);
-                }
-              }
+              state.isHaxeUIDialogOpen = false;
+              state.currentWorkingFilePath = null; // New file, so no path.
+              state.switchToCurrentInstrumental();
+              state.postLoadInstrumental();
             }
           }
           else

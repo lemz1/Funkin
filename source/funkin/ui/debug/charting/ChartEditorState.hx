@@ -1925,6 +1925,11 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   var menubarItemPlaybackSpeed:Slider;
 
   /**
+   * The `Chart -> Generate Chart` menu item.
+   */
+  var menubarItemGenerateChart:MenuItem;
+
+  /**
    * The label by the playbar telling the song position.
    */
   var playbarSongPos:Label;
@@ -3108,6 +3113,14 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
       var pitchDisplay:Float = Std.int(pitch * 100) / 100; // Round to 2 decimal places.
       menubarLabelPlaybackSpeed.text = 'Playback Speed - ${pitchDisplay}x';
     }
+
+    menubarItemGenerateChart.onClick = _ -> {
+      var dialog = this.openGenerateChartDialog(true);
+      dialog.onDialogClosed = function(_) {
+        this.isHaxeUIDialogOpen = false;
+        // TODO: do some stuff actually
+      }
+    };
 
     menubarItemToggleToolboxDifficulty.onChange = event -> this.setToolboxState(CHART_EDITOR_TOOLBOX_DIFFICULTY_LAYOUT, event.value);
     menubarItemToggleToolboxMetadata.onChange = event -> this.setToolboxState(CHART_EDITOR_TOOLBOX_METADATA_LAYOUT, event.value);
@@ -5654,7 +5667,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   function handleHelpKeybinds():Void
   {
     // F1 = Open Help
-    if (FlxG.keys.justPressed.F1 && !isHaxeUIDialogOpen) {
+    if (FlxG.keys.justPressed.F1 && !isHaxeUIDialogOpen)
+    {
       this.openUserGuideDialog();
     }
   }
