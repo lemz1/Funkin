@@ -2,6 +2,8 @@ package funkin.ui.debug.charting.components;
 
 import haxe.ui.containers.HBox;
 import haxe.ui.containers.ScrollView;
+import haxe.ui.components.TextField;
+import haxe.ui.components.CheckBox;
 
 /**
  * The component which contains the channel data item for the chart generator.
@@ -10,6 +12,9 @@ import haxe.ui.containers.ScrollView;
 @:build(haxe.ui.ComponentBuilder.build("assets/exclude/data/ui/chart-editor/components/channel-item.xml"))
 class ChartEditorChannelItem extends HBox
 {
+  public var channelTextField:TextField;
+  public var isPlayerCheckBox:CheckBox;
+
   var view:ScrollView;
 
   public function new(view:ScrollView)

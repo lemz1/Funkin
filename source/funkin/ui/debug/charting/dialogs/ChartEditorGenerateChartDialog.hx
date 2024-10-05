@@ -3,13 +3,15 @@ package funkin.ui.debug.charting.dialogs;
 import funkin.ui.debug.charting.dialogs.ChartEditorBaseDialog.DialogParams;
 import funkin.ui.debug.charting.dialogs.ChartEditorBaseDialog.DialogDropTarget;
 import funkin.ui.debug.charting.components.ChartEditorChannelItem;
-import funkin.ui.debug.charting.util.ChartEditorChartGenerator;
 import funkin.input.Cursor;
 import haxe.ui.containers.dialogs.Dialogs;
 import haxe.ui.containers.dialogs.Dialog.DialogButton;
 import haxe.ui.containers.dialogs.Dialog.DialogEvent;
 import haxe.ui.containers.Box;
+import haxe.ui.containers.ScrollView;
 import haxe.io.Path;
+import haxe.io.Bytes;
+import haxe.io.BytesInput;
 import grig.midi.MidiFile;
 
 // @:nullSafety // TODO: Fix null safety when used with HaxeUI build macros.
@@ -18,8 +20,18 @@ import grig.midi.MidiFile;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 {
-  var midiFile:Null<MidiFile>;
+  public var channelView:ScrollView;
+
   var dropHandler:DialogDropTarget;
+  var midi(default, set):Null<MidiFile>;
+
+  function set_midi(value:Null<MidiFile>):Null<MidiFile>
+  {
+    this.midi = value;
+    dialogHints.disabled = this.midi == null;
+    dialogNotes.disabled = this.midi == null;
+    return value;
+  }
 
   public function new(state2:ChartEditorState, params2:DialogParams)
   {
@@ -29,13 +41,13 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
       hideDialog(DialogButton.CANCEL);
     }
 
-    dialogEmptyChart.onClick = function(_) {
-      // Dismiss
+    dialogHints.onClick = function(_) {
+      generateChart(true);
       hideDialog(DialogButton.APPLY);
     };
 
-    dialogContinue.onClick = function(_) {
-      // Dismiss
+    dialogNotes.onClick = function(_) {
+      generateChart(false);
       hideDialog(DialogButton.APPLY);
     };
 
@@ -56,7 +68,7 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 
       try
       {
-        midiFile = ChartEditorChartGenerator.loadMidiFromPath(path);
+        midi = loadMidiFromPath(path);
 
         chartEditorState.success('Loaded Midi File', 'Loaded Midi File (${path.file}.${path.ext})');
         #if FILE_DROP_SUPPORTED
@@ -92,7 +104,7 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 
           try
           {
-            midiFile = ChartEditorChartGenerator.loadMidiFromBytes(selectedFile.bytes);
+            midi = loadMidiFromBytes(selectedFile.bytes);
 
             chartEditorState.success('Loaded Midi File', 'Loaded Midi File (${selectedFile.name})');
 
@@ -121,6 +133,24 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     dropHandler.handler = onDropFile;
 
     midiEntryContainer.addComponent(midiEntry);
+  }
+
+  function generateChart(onlyHints:Bool):Void
+  {
+    var channels:Array<ChartGeneratorChannel> = [];
+    for (item in channelView.findComponents(null, ChartEditorChannelItem))
+    {
+      if (!item.channelBox.hidden && item.channelTextField.value != null && item.channelTextField.value.length != 0)
+      {
+        channels.push(
+          {
+            name: item.channelTextField.value,
+            isPlayerTrack: item.isPlayerCheckBox.value
+          });
+      }
+    }
+
+    chartEditorState.generateChartFromMidi({midi: midi, channels: channels, onlyHints: onlyHints});
   }
 
   public override function onClose(event:DialogEvent):Void
@@ -157,6 +187,28 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     dialog.showDialog(modal ?? true);
 
     return dialog;
+  }
+
+  /**
+   * Get Midi File
+   * @param path Path with extension
+   * @return MidiFile
+   */
+  static function loadMidiFromPath(path:Path):MidiFile
+  {
+    var bytes:Bytes = sys.io.File.getBytes(path.toString());
+    return loadMidiFromBytes(bytes);
+  }
+
+  /**
+   * Get Midi File
+   * @param bytes Bytes
+   * @return MidiFile
+   */
+  static function loadMidiFromBytes(bytes:Bytes):MidiFile
+  {
+    var input:BytesInput = new BytesInput(bytes);
+    return MidiFile.fromInput(input);
   }
 }
 
