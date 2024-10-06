@@ -83,6 +83,7 @@ import funkin.ui.debug.charting.components.ChartEditorNotePreview;
 import funkin.ui.debug.charting.components.ChartEditorNoteSprite;
 import funkin.ui.debug.charting.components.ChartEditorPlaybarHead;
 import funkin.ui.debug.charting.components.ChartEditorSelectionSquareSprite;
+import funkin.ui.debug.charting.components.ChartEditorHintSquareSprite;
 import funkin.ui.debug.charting.handlers.ChartEditorShortcutHandler;
 import funkin.ui.debug.charting.toolboxes.ChartEditorBaseToolbox;
 import funkin.ui.debug.charting.toolboxes.ChartEditorDifficultyToolbox;
@@ -419,6 +420,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     renderedHoldNotes.setPosition(gridTiledSprite?.x ?? 0.0, gridTiledSprite?.y ?? 0.0);
     renderedEvents.setPosition(gridTiledSprite?.x ?? 0.0, gridTiledSprite?.y ?? 0.0);
     renderedSelectionSquares.setPosition(gridTiledSprite?.x ?? 0.0, gridTiledSprite?.y ?? 0.0);
+    renderedHintSquares.setPosition(gridTiledSprite?.x ?? 0.0, gridTiledSprite?.y ?? 0.0);
     // Offset the selection box start position, if we are dragging.
     if (selectionBoxStartPos != null) selectionBoxStartPos.y -= diff;
 
@@ -1687,6 +1689,11 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   }
 
   /**
+   * NOTE HINT STUFF
+   */
+  var noteHints:Array<SongNoteData> = [];
+
+  /**
    * HAXEUI COMPONENTS
    */
   // ==============================
@@ -1823,6 +1830,11 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
    * The `View -> Downscroll` menu item.
    */
   var menubarItemDownscroll:MenuCheckBox;
+
+  /**
+   * The `View -> Downscroll` menu item.
+   */
+  var menubarItemShowHints:MenuCheckBox;
 
   /**
    * The `View -> Increase Difficulty` menu item.
@@ -2022,6 +2034,11 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   var selectionSquareBitmap:Null<BitmapData> = null;
 
   /**
+   * The IMAGE used for the hint squares. Updated by ChartEditorThemeHandler.
+   */
+  var hintSquareBitmap:Null<BitmapData> = null;
+
+  /**
    * The IMAGE used for the note preview bitmap. Updated by ChartEditorThemeHandler.
    * The image is split and used for a 9-slice sprite for the box over the note preview.
    */
@@ -2140,6 +2157,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   var renderedEvents:FlxTypedSpriteGroup<ChartEditorEventSprite> = new FlxTypedSpriteGroup<ChartEditorEventSprite>();
 
   var renderedSelectionSquares:FlxTypedSpriteGroup<ChartEditorSelectionSquareSprite> = new FlxTypedSpriteGroup<ChartEditorSelectionSquareSprite>();
+
+  var renderedHintSquares:FlxTypedSpriteGroup<ChartEditorHintSquareSprite> = new FlxTypedSpriteGroup<ChartEditorHintSquareSprite>();
 
   /**
    * LIFE CYCLE FUNCTIONS
@@ -2484,21 +2503,21 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     gridGhostNote.noteData = new SongNoteData(0, 0, 0, "", []);
     gridGhostNote.visible = false;
     add(gridGhostNote);
-    gridGhostNote.zIndex = 11;
+    gridGhostNote.zIndex = 12;
 
     gridGhostHoldNote = new ChartEditorHoldNoteSprite(this);
     gridGhostHoldNote.alpha = 0.6;
     gridGhostHoldNote.noteData = null;
     gridGhostHoldNote.visible = false;
     add(gridGhostHoldNote);
-    gridGhostHoldNote.zIndex = 11;
+    gridGhostHoldNote.zIndex = 12;
 
     gridGhostEvent = new ChartEditorEventSprite(this, true);
     gridGhostEvent.alpha = 0.6;
     gridGhostEvent.eventData = new SongEventData(-1, '', {});
     gridGhostEvent.visible = false;
     add(gridGhostEvent);
-    gridGhostEvent.zIndex = 12;
+    gridGhostEvent.zIndex = 13;
 
     buildNoteGroup();
 
@@ -2695,7 +2714,11 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
 
     renderedSelectionSquares.setPosition(gridTiledSprite.x, gridTiledSprite.y);
     add(renderedSelectionSquares);
-    renderedSelectionSquares.zIndex = 26;
+    renderedSelectionSquares.zIndex = 27;
+
+    renderedHintSquares.setPosition(gridTiledSprite.x, gridTiledSprite.y);
+    add(renderedHintSquares);
+    renderedHintSquares.zIndex = 11;
   }
 
   function buildAdditionalUI():Void
@@ -3021,6 +3044,12 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
 
     menubarItemDownscroll.onClick = event -> isViewDownscroll = event.value;
     menubarItemDownscroll.selected = isViewDownscroll;
+
+    menubarItemShowHints.onClick = (event) -> {
+      renderedHintSquares.visible = event.value;
+      trace('IS IT VISIBLE: ${renderedHintSquares.visible}', event.value);
+    };
+    menubarItemShowHints.selected = true;
 
     menubarItemDifficultyUp.onClick = _ -> incrementDifficulty(1);
     menubarItemDifficultyDown.onClick = _ -> incrementDifficulty(-1);
@@ -3841,6 +3870,27 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
 
         // Additional cleanup on notes.
         if (noteTooltipsDirty) eventSprite.updateTooltipText();
+      }
+
+      // Destroy all existing hint squares.
+      for (member in renderedHintSquares.members)
+      {
+        // Killing the sprite is cheap because we can recycle it.
+        member.kill();
+      }
+
+      for (hint in noteHints)
+      {
+        if (hint.time < viewAreaTopMs || hint.time > viewAreaBottomMs)
+        {
+          continue;
+        }
+
+        var hintSquare:ChartEditorHintSquareSprite = renderedHintSquares.recycle(buildHintSquare);
+        hintSquare.x = renderedHintSquares.x + (hint.getStrumlineIndex() == 0 ? GRID_SIZE * 4 : 0);
+        hintSquare.y = hint.getStepTime() * GRID_SIZE + renderedHintSquares.y;
+        hintSquare.width = GRID_SIZE * 4 - GRID_SELECTION_BORDER_WIDTH / 2;
+        hintSquare.height = GRID_SIZE;
       }
 
       noteTooltipsDirty = false;
@@ -5869,6 +5919,19 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     // FlxG.bitmapLog.add(selectionSquareBitmap, "selectionSquareBitmap");
     var result = new ChartEditorSelectionSquareSprite(this);
     result.loadGraphic(selectionSquareBitmap);
+    return result;
+  }
+
+  /**
+   * This is for the smaller green squares that appear over each note when you select them.
+   */
+  function buildHintSquare():ChartEditorHintSquareSprite
+  {
+    if (hintSquareBitmap == null) throw "ERROR: Tried to build hint square, but hintSquareBitmap is null! Check ChartEditorThemeHandler.updateHintSquare()";
+
+    // FlxG.bitmapLog.add(selectionSquareBitmap, "selectionSquareBitmap");
+    var result = new ChartEditorHintSquareSprite(this);
+    result.loadGraphic(hintSquareBitmap);
     return result;
   }
 

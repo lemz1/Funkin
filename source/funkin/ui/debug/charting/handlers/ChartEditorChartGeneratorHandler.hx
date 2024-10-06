@@ -1,15 +1,17 @@
 package funkin.ui.debug.charting.handlers;
 
 import funkin.ui.debug.charting.ChartEditorState;
+import funkin.data.song.SongData;
+import funkin.util.SortUtil;
 import grig.midi.file.event.MidiFileEventType;
 import grig.midi.MessageType;
 import grig.midi.MidiFile;
-import grig.midi.MidiTrack;
 import flixel.util.FlxSort;
 
 /**
  * Helper class for generating charts
  */
+@:access(funkin.ui.debug.charting.ChartEditorState)
 class ChartEditorChartGeneratorHandler
 {
   /**
@@ -19,7 +21,8 @@ class ChartEditorChartGeneratorHandler
    */
   public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorParams):Void
   {
-    var noteData:Array<MidiNoteData> = [];
+    state.noteDisplayDirty = true;
+    state.noteHints = [];
 
     var bpm:Float = 0;
     for (track in params.midi.tracks)
@@ -55,7 +58,7 @@ class ChartEditorChartGeneratorHandler
               // byte 2 = note
               var data:Int = (e.midiMessage.byte2 % 4) + (channel.isPlayerTrack ? 0 : 4);
               var time:Float = (event.absoluteTime / params.midi.timeDivision) * (60.0 / bpm) * 1000.0;
-              noteData.push({data: data, time: time});
+              state.noteHints.push(new SongNoteData(time, data, 0));
             }
           default:
             // do nothing
@@ -63,17 +66,15 @@ class ChartEditorChartGeneratorHandler
       }
     }
 
-    noteData.sort((a, b) -> FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time));
+    state.noteHints.sort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
 
-    for (note in noteData)
+    if (params.onlyHints)
     {
-      // create hint stuff
+      return;
+    }
 
-      if (params.onlyHints)
-      {
-        continue;
-      }
-
+    for (note in state.noteHints)
+    {
       // creates note stuff
     }
   }
@@ -103,10 +104,4 @@ typedef ChartGeneratorChannel =
 {
   var name:String;
   var isPlayerTrack:Bool;
-}
-
-typedef MidiNoteData =
-{
-  var data:Int;
-  var time:Float;
 }
