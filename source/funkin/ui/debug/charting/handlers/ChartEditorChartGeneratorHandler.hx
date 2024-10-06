@@ -104,6 +104,12 @@ class ChartEditorChartGeneratorHandler
       for (i in noteIndex...state.currentSongChartNoteData.length)
       {
         var note:SongNoteData = state.currentSongChartNoteData[i];
+
+        if (note.getStrumlineIndex() != hint.getStrumlineIndex())
+        {
+          continue;
+        }
+
         if (note.time - hint.time <= NOTE_DIFF_THRESHOLD_MS)
         {
           noteIndex = i;
