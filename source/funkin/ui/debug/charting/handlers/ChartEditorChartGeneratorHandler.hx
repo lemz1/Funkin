@@ -14,6 +14,10 @@ import flixel.util.FlxSort;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class ChartEditorChartGeneratorHandler
 {
+  static final CHUNK_INTERVAL_MS:Float = 2500;
+
+  static final NOTE_DIFF_THRESHOLD_MS:Float = 1;
+
   /**
    * Generate Hints (and Notes)
    * @param state The Chart Editor State
@@ -90,9 +94,38 @@ class ChartEditorChartGeneratorHandler
       return;
     }
 
-    for (note in state.noteHints)
+    // NOTE GENERATION
+
+    var noteIndex:Int = 0;
+
+    for (hint in state.noteHints)
     {
-      // creates note stuff
+      var noteAlreadyPlaced:Bool = false;
+      for (i in noteIndex...state.currentSongChartNoteData.length)
+      {
+        var note:SongNoteData = state.currentSongChartNoteData[i];
+        if (note.time - hint.time <= NOTE_DIFF_THRESHOLD_MS)
+        {
+          noteIndex = i;
+        }
+        else
+        {
+          break;
+        }
+
+        if (Math.abs(note.time - hint.time) <= NOTE_DIFF_THRESHOLD_MS)
+        {
+          noteAlreadyPlaced = true;
+          break;
+        }
+      }
+
+      if (noteAlreadyPlaced)
+      {
+        continue;
+      }
+
+      state.currentSongChartNoteData.insert(noteIndex + 1, hint);
     }
   }
 
