@@ -96,6 +96,7 @@ import funkin.ui.transition.LoadingState;
 import funkin.util.Constants;
 import funkin.util.FileUtil;
 import funkin.util.logging.CrashHandler;
+import funkin.util.QuantizeUtil;
 import funkin.util.SortUtil;
 import funkin.util.WindowUtil;
 import haxe.DynamicAccess;
@@ -3894,6 +3895,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
           hintSquare.x += GRID_SIZE * STRUMLINE_SIZE + GRID_SELECTION_BORDER_WIDTH / 2;
           hintSquare.width -= GRID_SELECTION_BORDER_WIDTH / 2;
         }
+        hintSquare.color = FlxColor.RED;
+        // hintSquare.color = QuantizeUtil.quantizeTime16Color(hint.time);
       }
 
       noteTooltipsDirty = false;

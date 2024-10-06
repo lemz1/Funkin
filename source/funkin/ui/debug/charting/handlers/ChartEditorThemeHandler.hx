@@ -60,14 +60,13 @@ class ChartEditorThemeHandler
   static final SELECTION_SQUARE_FILL_COLOR_DARK:FlxColor = 0x4033FF33;
 
   // Border on the square highlighting selected notes.
-  static final HINT_SQUARE_BORDER_COLOR_LIGHT:FlxColor = 0xFF47CBEC;
-  static final HINT_SQUARE_BORDER_COLOR_DARK:FlxColor = 0xFF47CBEC;
+  static final HINT_SQUARE_BORDER_COLOR_LIGHT:FlxColor = 0xFFFFFFFF;
+  static final HINT_SQUARE_BORDER_COLOR_DARK:FlxColor = 0xFFFFFFFF;
   public static final HINT_SQUARE_BORDER_WIDTH:Int = 1;
 
   // Fill on the square highlighting selected notes.
-  // Make sure this is transparent so you can see the notes underneath.
-  static final HINT_SQUARE_FILL_COLOR_LIGHT:FlxColor = 0x403170AA;
-  static final HINT_SQUARE_FILL_COLOR_DARK:FlxColor = 0x403170AA;
+  static final HINT_SQUARE_FILL_COLOR_LIGHT:FlxColor = 0x40FFFFFF;
+  static final HINT_SQUARE_FILL_COLOR_DARK:FlxColor = 0x40FFFFFF;
 
   static final PLAYHEAD_BLOCK_BORDER_WIDTH:Int = 2;
   static final PLAYHEAD_BLOCK_BORDER_COLOR:FlxColor = 0xFF9D0011;
@@ -416,15 +415,6 @@ class ChartEditorThemeHandler
     state.hintSquareBitmap.fillRect(new Rectangle(HINT_SQUARE_BORDER_WIDTH, HINT_SQUARE_BORDER_WIDTH,
       ChartEditorState.GRID_SIZE - (HINT_SQUARE_BORDER_WIDTH * 2), ChartEditorState.GRID_SIZE - (HINT_SQUARE_BORDER_WIDTH * 2)),
       hintSquareFillColor);
-
-    state.selectionBoxSprite = new FlxSliceSprite(state.hintSquareBitmap,
-      new FlxRect(HINT_SQUARE_BORDER_WIDTH
-        + 4, HINT_SQUARE_BORDER_WIDTH
-        + 4, ChartEditorState.GRID_SIZE
-        - (2 * HINT_SQUARE_BORDER_WIDTH + 8),
-        ChartEditorState.GRID_SIZE
-        - (2 * HINT_SQUARE_BORDER_WIDTH + 8)),
-      32, 32);
   }
 
   static function updateNotePreview(state:ChartEditorState):Void
