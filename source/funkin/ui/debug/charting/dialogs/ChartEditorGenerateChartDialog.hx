@@ -54,6 +54,8 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     channelView.addComponent(new ChartEditorChannelItem(channelView));
 
     buildDropHandler();
+
+    chartEditorState.isHaxeUIDialogOpen = true;
   }
 
   function buildDropHandler():Void
@@ -158,6 +160,7 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     super.onClose(event);
 
     chartEditorState.removeDropHandler(dropHandler);
+    chartEditorState.isHaxeUIDialogOpen = false;
   }
 
   public override function lock():Void

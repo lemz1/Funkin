@@ -3373,7 +3373,10 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     handleToolboxes();
     handlePlaybar();
 
-    handlePlayhead();
+    if (!isHaxeUIDialogOpen)
+    {
+      handlePlayhead();
+    }
 
     handleNotePreview();
     handleHealthIcons();
