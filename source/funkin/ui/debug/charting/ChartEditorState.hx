@@ -3145,7 +3145,6 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
       var dialog = this.openGenerateChartDialog(true);
       dialog.onDialogClosed = function(_) {
         this.isHaxeUIDialogOpen = false;
-        // TODO: do some stuff actually
       }
     };
 
@@ -3373,7 +3372,12 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     handleMenubar();
     handleToolboxes();
     handlePlaybar();
-    handlePlayhead();
+
+    if (isHaxeUIFocused)
+    {
+      handlePlayhead();
+    }
+
     handleNotePreview();
     handleHealthIcons();
 
