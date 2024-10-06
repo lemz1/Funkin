@@ -60,14 +60,14 @@ class ChartEditorThemeHandler
   static final SELECTION_SQUARE_FILL_COLOR_DARK:FlxColor = 0x4033FF33;
 
   // Border on the square highlighting selected notes.
-  static final HINT_SQUARE_BORDER_COLOR_LIGHT:FlxColor = 0xFFBBCA34;
-  static final HINT_SQUARE_BORDER_COLOR_DARK:FlxColor = 0xFFBBCA34;
+  static final HINT_SQUARE_BORDER_COLOR_LIGHT:FlxColor = 0xFF47CBEC;
+  static final HINT_SQUARE_BORDER_COLOR_DARK:FlxColor = 0xFF47CBEC;
   public static final HINT_SQUARE_BORDER_WIDTH:Int = 1;
 
   // Fill on the square highlighting selected notes.
   // Make sure this is transparent so you can see the notes underneath.
-  static final HINT_SQUARE_FILL_COLOR_LIGHT:FlxColor = 0xA0BBCA34;
-  static final HINT_SQUARE_FILL_COLOR_DARK:FlxColor = 0xA0BBCA34;
+  static final HINT_SQUARE_FILL_COLOR_LIGHT:FlxColor = 0x403170AA;
+  static final HINT_SQUARE_FILL_COLOR_DARK:FlxColor = 0x403170AA;
 
   static final PLAYHEAD_BLOCK_BORDER_WIDTH:Int = 2;
   static final PLAYHEAD_BLOCK_BORDER_COLOR:FlxColor = 0xFF9D0011;

@@ -57,8 +57,25 @@ class ChartEditorChartGeneratorHandler
             {
               // byte 2 = note
               var data:Int = (e.midiMessage.byte2 % 4) + (channel.isPlayerTrack ? 0 : 4);
-              var time:Float = (event.absoluteTime / params.midi.timeDivision) * (60.0 / bpm) * 1000.0;
+              var time:Float = translateToMS(event.absoluteTime, bpm, params.midi.timeDivision);
               state.noteHints.push(new SongNoteData(time, data, 0));
+            }
+            else if (e.midiMessage.messageType == MessageType.NoteOff)
+            {
+              if (state.noteHints.length == 0)
+              {
+                continue;
+              }
+
+              var currentHint:SongNoteData = state.noteHints[state.noteHints.length - 1];
+              var threshold:Float = (60.0 / bpm) * 1000.0 * 0.25;
+              var sustainLength:Float = translateToMS(event.absoluteTime, bpm, params.midi.timeDivision);
+              sustainLength -= currentHint.time;
+              sustainLength -= threshold;
+              if (sustainLength > 0.001)
+              {
+                currentHint.length = sustainLength;
+              }
             }
           default:
             // do nothing
@@ -90,6 +107,11 @@ class ChartEditorChartGeneratorHandler
     }
 
     return -1;
+  }
+
+  static function translateToMS(time:Float, bpm:Float, timeDivision:Float):Float
+  {
+    return (time / timeDivision) * (60.0 / bpm) * 1000.0;
   }
 }
 

@@ -3888,6 +3888,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
         hintSquare.y = hint.getStepTime() * GRID_SIZE + renderedHintSquares.y;
         hintSquare.width = GRID_SIZE * STRUMLINE_SIZE - GRID_SELECTION_BORDER_WIDTH / 2;
         hintSquare.height = GRID_SIZE;
+        hintSquare.height += hint.getStepLength() * GRID_SIZE;
         if (hint.getStrumlineIndex() == 0)
         {
           hintSquare.x += GRID_SIZE * STRUMLINE_SIZE + GRID_SELECTION_BORDER_WIDTH / 2;
