@@ -3045,10 +3045,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
     menubarItemDownscroll.onClick = event -> isViewDownscroll = event.value;
     menubarItemDownscroll.selected = isViewDownscroll;
 
-    menubarItemShowHints.onClick = (event) -> {
-      renderedHintSquares.visible = event.value;
-      trace('IS IT VISIBLE: ${renderedHintSquares.visible}', event.value);
-    };
+    menubarItemShowHints.onClick = _ -> renderedHintSquares.visible = menubarItemShowHints.selected;
     menubarItemShowHints.selected = true;
 
     menubarItemDifficultyUp.onClick = _ -> incrementDifficulty(1);
@@ -3887,10 +3884,15 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
         }
 
         var hintSquare:ChartEditorHintSquareSprite = renderedHintSquares.recycle(buildHintSquare);
-        hintSquare.x = renderedHintSquares.x + (hint.getStrumlineIndex() == 0 ? GRID_SIZE * 4 : 0);
+        hintSquare.x = renderedHintSquares.x;
         hintSquare.y = hint.getStepTime() * GRID_SIZE + renderedHintSquares.y;
-        hintSquare.width = GRID_SIZE * 4 - GRID_SELECTION_BORDER_WIDTH / 2;
+        hintSquare.width = GRID_SIZE * STRUMLINE_SIZE - GRID_SELECTION_BORDER_WIDTH / 2;
         hintSquare.height = GRID_SIZE;
+        if (hint.getStrumlineIndex() == 0)
+        {
+          hintSquare.x += GRID_SIZE * STRUMLINE_SIZE + GRID_SELECTION_BORDER_WIDTH / 2;
+          hintSquare.width -= GRID_SELECTION_BORDER_WIDTH / 2;
+        }
       }
 
       noteTooltipsDirty = false;
