@@ -1694,6 +1694,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
    */
   var noteHints:Array<SongNoteData> = [];
 
+  var midiFile:Null<String> = null;
+
   var midiData:Null<Bytes> = null;
 
   /**

@@ -169,7 +169,7 @@ class ChartEditorChartGeneratorHandler
    */
   public static function makeZIPEntryFromMidi(state:ChartEditorState):haxe.zip.Entry
   {
-    return FileUtil.makeZIPEntryFromBytes('hintMidi.mid', state.midiData);
+    return FileUtil.makeZIPEntryFromBytes(state.midiFile ?? 'hintMidi.mid', state.midiData);
   }
 
   static function getChannelIndex(name:String, channels:Array<ChartGeneratorChannel>):Int

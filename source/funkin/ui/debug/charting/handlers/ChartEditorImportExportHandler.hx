@@ -306,7 +306,11 @@ class ChartEditorImportExportHandler
       }
     }
 
-    state.midiData = mappedFileEntries.get('hintMidi')?.data;
+    if (manifest.midiFile != null)
+    {
+      state.midiData = mappedFileEntries.get(manifest.midiFile)?.data;
+      state.midiFile = manifest.midiFile;
+    }
 
     // Apply chart data.
     trace(songMetadatas);
@@ -421,7 +425,7 @@ class ChartEditorImportExportHandler
     if (state.audioVocalTrackData != null) zipEntries = zipEntries.concat(state.makeZIPEntriesFromVocals());
     if (state.midiData != null) zipEntries.push(state.makeZIPEntryFromMidi());
 
-    var manifest:ChartManifestData = new ChartManifestData(state.currentSongId);
+    var manifest:ChartManifestData = new ChartManifestData(state.currentSongId, state.midiFile);
     zipEntries.push(FileUtil.makeZIPEntry('manifest.json', manifest.serialize()));
 
     trace('Exporting ${zipEntries.length} files to ZIP...');

@@ -21,6 +21,7 @@ import grig.midi.MidiFile;
 class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 {
   var dropHandler:DialogDropTarget;
+  var midiEntry:ChartEditorGenerateChartMidiEntry;
   var midi(default, set):Null<MidiFile>;
 
   function set_midi(value:Null<MidiFile>):Null<MidiFile>
@@ -54,11 +55,24 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     buildDropHandler();
 
     chartEditorState.isHaxeUIDialogOpen = true;
+
+    if (chartEditorState.midiData != null)
+    {
+      midi = loadMidiFromBytes(chartEditorState.midiData);
+
+      var fileName:String = chartEditorState.midiFile ?? '???.mid';
+
+      #if FILE_DROP_SUPPORTED
+      midiEntry.midiEntryLabel.text = 'Midi File (drag and drop, or click to browse)\nSelected file: $fileName';
+      #else
+      midiEntry.midiEntryLabel.text = 'Midi File (click to browse)\n$fileName';
+      #end
+    }
   }
 
   function buildDropHandler():Void
   {
-    var midiEntry:ChartEditorGenerateChartMidiEntry = new ChartEditorGenerateChartMidiEntry();
+    midiEntry = new ChartEditorGenerateChartMidiEntry();
 
     dropHandler = {component: midiEntry, handler: null};
 
@@ -69,6 +83,8 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
       try
       {
         midi = loadMidiFromPath(path);
+
+        chartEditorState.midiFile = '${path.file}.${path.ext}';
 
         chartEditorState.success('Loaded Midi File', 'Loaded Midi File (${path.file}.${path.ext})');
         #if FILE_DROP_SUPPORTED
@@ -105,6 +121,8 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
           try
           {
             midi = loadMidiFromBytes(selectedFile.bytes);
+
+            chartEditorState.midiFile = '${selectedFile.name}';
 
             chartEditorState.success('Loaded Midi File', 'Loaded Midi File (${selectedFile.name})');
 
