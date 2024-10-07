@@ -1,6 +1,5 @@
 package funkin.ui.debug.charting.handlers;
 
-import funkin.ui.debug.charting.dialogs.ChartEditorGenerateChartDialog;
 import flixel.util.FlxTimer;
 import funkin.data.song.importer.FNFLegacyData;
 import funkin.data.song.importer.FNFLegacyImporter;
@@ -21,6 +20,8 @@ import funkin.ui.debug.charting.dialogs.ChartEditorCharacterIconSelectorMenu;
 import funkin.ui.debug.charting.dialogs.ChartEditorUploadChartDialog;
 import funkin.ui.debug.charting.dialogs.ChartEditorWelcomeDialog;
 import funkin.ui.debug.charting.dialogs.ChartEditorUploadVocalsDialog;
+import funkin.ui.debug.charting.dialogs.ChartEditorGenerateChartDialog;
+import funkin.ui.debug.charting.dialogs.ChartEditorGenerateDifficultyDialog;
 import funkin.ui.debug.charting.util.ChartEditorDropdowns;
 import funkin.util.Constants;
 import funkin.util.DateUtil;
@@ -143,7 +144,7 @@ class ChartEditorDialogHandler
   }
 
   /**
-   * Builds and opens a dialog where the user uploads vocals for the current song.
+   * Builds and opens a dialog where the user generates a chart.
    * @param state The current chart editor state.
    * @param closable Whether the dialog can be closed by the user.
    * @return The dialog that was opened.
@@ -151,6 +152,22 @@ class ChartEditorDialogHandler
   public static function openGenerateChartDialog(state:ChartEditorState, closable:Bool = true):Dialog
   {
     var dialog = ChartEditorGenerateChartDialog.build(state, closable);
+
+    dialog.zIndex = 1000;
+    state.isHaxeUIDialogOpen = true;
+
+    return dialog;
+  }
+
+  /**
+   * Builds and opens a dialog where the user generates difficulties.
+   * @param state The current chart editor state.
+   * @param closable Whether the dialog can be closed by the user.
+   * @return The dialog that was opened.
+   */
+  public static function openGenerateDifficultyDialog(state:ChartEditorState, closable:Bool = true):Dialog
+  {
+    var dialog = ChartEditorGenerateDifficultyDialog.build(state, closable);
 
     dialog.zIndex = 1000;
     state.isHaxeUIDialogOpen = true;

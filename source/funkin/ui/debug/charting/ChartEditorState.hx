@@ -1942,6 +1942,11 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
    */
   var menubarItemGenerateChart:MenuItem;
 
+    /**
+   * The `Chart -> Generate Difficulty` menu item.
+   */
+  var menubarItemGenerateDifficulty:MenuItem;
+
   /**
    * The label by the playbar telling the song position.
    */
@@ -3143,6 +3148,13 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
 
     menubarItemGenerateChart.onClick = _ -> {
       var dialog = this.openGenerateChartDialog(true);
+      dialog.onDialogClosed = function(_) {
+        this.isHaxeUIDialogOpen = false;
+      }
+    };
+
+    menubarItemGenerateDifficulty.onClick = _ -> {
+      var dialog = this.openGenerateDifficultyDialog(true);
       dialog.onDialogClosed = function(_) {
         this.isHaxeUIDialogOpen = false;
       }

@@ -23,7 +23,7 @@ class ChartEditorChartGeneratorHandler
    * @param state The Chart Editor State
    * @param params The Params
    */
-  public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorParams):Void
+  public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorHintParams):Void
   {
     state.noteDisplayDirty = true;
     state.noteHints = [];
@@ -135,6 +135,32 @@ class ChartEditorChartGeneratorHandler
     }
   }
 
+  /**
+   * Generate an easier version of a given chart
+   * @param state The Chart Editor State
+   * @param params The Params
+   */
+  public static function generateChartDifficulty(state:ChartEditorState, params:ChartGeneratorDifficultyParams):Void
+  {
+    var notes:Array<SongNoteData> = state.currentSongChartData.notes.get(params.refDifficultyId) ?? [];
+
+    if (notes.length == 0)
+    {
+      trace("No Notes (ChartEditorChartGeneratorHandler.generateChartDifficulty)");
+      return;
+    }
+
+    var difficultyNotes:Array<SongNoteData> = switch (params.algorithm)
+    {
+      case RemoveNthTooClose(n):
+        removeNthTooCloseAlgorithm(notes, n);
+    };
+
+    state.currentSongChartData.notes.set(params.difficultyId, difficultyNotes);
+
+    state.currentSongChartData.scrollSpeed.set(params.difficultyId, params.scrollSpeed);
+  }
+
   static function getChannelIndex(name:String, channels:Array<ChartGeneratorChannel>):Int
   {
     for (i in 0...channels.length)
@@ -152,9 +178,66 @@ class ChartEditorChartGeneratorHandler
   {
     return (time / timeDivision) * (60.0 / bpm) * 1000.0;
   }
+
+  static function removeNthTooCloseAlgorithm(notes:Array<SongNoteData>, n:Int):Array<SongNoteData>
+  {
+    var difficultyNotes:Array<SongNoteData> = notes.copy();
+    // difficultyNotes.insertionSort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
+
+    var threshold:Float = Conductor.instance.stepLengthMs * 1.5;
+    var notesToRemove:Array<SongNoteData> = [];
+    var curNPlayer:Int = 0;
+    var curNOpponent:Int = 0;
+    for (i in 0...(difficultyNotes.length - 1))
+    {
+      var noteI:SongNoteData = difficultyNotes[i];
+      if (noteI == null || notesToRemove.contains(noteI))
+      {
+        continue;
+      }
+
+      for (j in (i + 1)...difficultyNotes.length)
+      {
+        var noteJ:SongNoteData = difficultyNotes[j];
+        if (noteJ == null
+          || noteJ.length != 0
+          || noteJ.getStrumlineIndex() != noteI.getStrumlineIndex()
+          || notesToRemove.contains(noteJ))
+        {
+          continue;
+        }
+
+        var curN:Float = noteJ.getStrumlineIndex() == 0 ? curNPlayer : curNOpponent;
+
+        if (Math.abs(noteJ.time - noteI.time) <= threshold)
+        {
+          if (curN % n == 0)
+          {
+            notesToRemove.push(noteJ);
+          }
+
+          if (noteJ.getStrumlineIndex() == 0)
+          {
+            curNPlayer++;
+          }
+          else
+          {
+            curNOpponent++;
+          }
+        }
+      }
+    }
+
+    for (note in notesToRemove)
+    {
+      difficultyNotes.remove(note);
+    }
+
+    return difficultyNotes;
+  }
 }
 
-typedef ChartGeneratorParams =
+typedef ChartGeneratorHintParams =
 {
   var midi:MidiFile;
   var channels:Array<ChartGeneratorChannel>;
@@ -165,4 +248,17 @@ typedef ChartGeneratorChannel =
 {
   var name:String;
   var isPlayerTrack:Bool;
+}
+
+typedef ChartGeneratorDifficultyParams =
+{
+  var refDifficultyId:String;
+  var difficultyId:String;
+  var algorithm:ChartGeneratorDifficultyAlgorithm;
+  var scrollSpeed:Float;
+}
+
+enum ChartGeneratorDifficultyAlgorithm
+{
+  RemoveNthTooClose(n:Int);
 }

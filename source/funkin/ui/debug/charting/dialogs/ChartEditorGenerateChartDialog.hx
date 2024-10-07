@@ -20,8 +20,6 @@ import grig.midi.MidiFile;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 {
-  public var channelView:ScrollView;
-
   var dropHandler:DialogDropTarget;
   var midi(default, set):Null<MidiFile>;
 

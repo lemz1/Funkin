@@ -12,9 +12,6 @@ import haxe.ui.components.CheckBox;
 @:build(haxe.ui.ComponentBuilder.build("assets/exclude/data/ui/chart-editor/components/channel-item.xml"))
 class ChartEditorChannelItem extends HBox
 {
-  public var channelTextField:TextField;
-  public var isPlayerCheckBox:CheckBox;
-
   var view:ScrollView;
 
   public function new(view:ScrollView)
