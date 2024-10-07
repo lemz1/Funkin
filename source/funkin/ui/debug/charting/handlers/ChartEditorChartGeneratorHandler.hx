@@ -3,6 +3,7 @@ package funkin.ui.debug.charting.handlers;
 import funkin.ui.debug.charting.ChartEditorState;
 import funkin.data.song.SongData;
 import funkin.util.SortUtil;
+import funkin.util.FileUtil;
 import grig.midi.file.event.MidiFileEventType;
 import grig.midi.MessageType;
 import grig.midi.MidiFile;
@@ -159,6 +160,16 @@ class ChartEditorChartGeneratorHandler
     state.currentSongChartData.notes.set(params.difficultyId, difficultyNotes);
 
     state.currentSongChartData.scrollSpeed.set(params.difficultyId, params.scrollSpeed);
+  }
+
+  /**
+   * Create a list of ZIP file entries from the current loaded vocal tracks in the chart eidtor.
+   * @param state The chart editor state.
+   * @return `haxe.zip.Entry`
+   */
+  public static function makeZIPEntryFromMidi(state:ChartEditorState):haxe.zip.Entry
+  {
+    return FileUtil.makeZIPEntryFromBytes('hintMidi.mid', state.midiData);
   }
 
   static function getChannelIndex(name:String, channels:Array<ChartGeneratorChannel>):Int

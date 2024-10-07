@@ -195,7 +195,7 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
    * @param path Path with extension
    * @return MidiFile
    */
-  static function loadMidiFromPath(path:Path):MidiFile
+  function loadMidiFromPath(path:Path):MidiFile
   {
     var bytes:Bytes = sys.io.File.getBytes(path.toString());
     return loadMidiFromBytes(bytes);
@@ -206,8 +206,9 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
    * @param bytes Bytes
    * @return MidiFile
    */
-  static function loadMidiFromBytes(bytes:Bytes):MidiFile
+  function loadMidiFromBytes(bytes:Bytes):MidiFile
   {
+    chartEditorState.midiData = bytes;
     var input:BytesInput = new BytesInput(bytes);
     return MidiFile.fromInput(input);
   }

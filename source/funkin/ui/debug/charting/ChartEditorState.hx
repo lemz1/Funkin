@@ -1694,6 +1694,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
    */
   var noteHints:Array<SongNoteData> = [];
 
+  var midiData:Null<Bytes> = null;
+
   /**
    * HAXEUI COMPONENTS
    */
@@ -1942,7 +1944,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
    */
   var menubarItemGenerateChart:MenuItem;
 
-    /**
+  /**
    * The `Chart -> Generate Difficulty` menu item.
    */
   var menubarItemGenerateDifficulty:MenuItem;
