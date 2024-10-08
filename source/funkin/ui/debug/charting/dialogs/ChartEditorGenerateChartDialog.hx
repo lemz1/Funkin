@@ -29,6 +29,20 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     this.midi = value;
     dialogHints.disabled = this.midi == null;
     dialogNotes.disabled = this.midi == null;
+
+    if (this.midi != null)
+    {
+      var channels:Array<String> = retrieveAllChannels();
+      for (item in channelView.findComponents(null, ChartEditorChannelItem))
+      {
+        item.channelDropdown.dataSource.clear();
+        for (channel in channels)
+        {
+          item.channelDropdown.dataSource.add(channel);
+        }
+        item.channelDropdown.value = channels[0];
+      }
+    }
     return value;
   }
 
@@ -158,11 +172,11 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     var channels:Array<ChartGeneratorChannel> = [];
     for (item in channelView.findComponents(null, ChartEditorChannelItem))
     {
-      if (!item.channelBox.hidden && item.channelTextField.value != null && item.channelTextField.value.length != 0)
+      if (!item.channelBox.hidden && item.channelDropdown.value != null && item.channelDropdown.value.length != 0)
       {
         channels.push(
           {
-            name: item.channelTextField.value,
+            name: item.channelDropdown.value,
             isPlayerTrack: item.isPlayerCheckBox.value
           });
       }
@@ -229,6 +243,27 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     chartEditorState.midiData = bytes;
     var input:BytesInput = new BytesInput(bytes);
     return MidiFile.fromInput(input);
+  }
+
+  /**
+   * Retrieve all midi channels
+   */
+  function retrieveAllChannels():Array<String>
+  {
+    var channels:Array<String> = [];
+
+    for (track in midi.tracks)
+    {
+      switch (track.midiEvents[0].type) // get track name
+      {
+        case Text(event):
+          channels.push(event.bytes.getString(0, event.bytes.length));
+        default:
+          // do nothing
+      }
+    }
+
+    return channels;
   }
 }
 
