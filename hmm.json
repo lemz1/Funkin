@@ -206,7 +206,10 @@
     },
     {
       "name": "HtmlParser",
-      "type": "haxelib"
+      "type": "git",
+      "dir": "library",
+      "ref": "28dad3f2cc40240d0aac8b595b4002b87f5986c3",
+      "url": "https://github.com/yar3333/haxe-htmlparser"
     }
   ]
 }
