@@ -50,7 +50,6 @@ import funkin.play.notes.NoteSprite;
 import funkin.play.notes.notestyle.NoteStyle;
 import funkin.play.notes.Strumline;
 import funkin.play.notes.SustainTrail;
-import funkin.play.notes.notekind.NoteKindManager;
 import funkin.play.scoring.Scoring;
 import funkin.play.song.Song;
 import funkin.play.stage.Stage;
@@ -1205,9 +1204,6 @@ class PlayState extends MusicBeatSubState
 
     // Dispatch event to conversation script.
     ScriptEventDispatcher.callEvent(currentConversation, event);
-
-    // Dispatch event to note kind scripts
-    NoteKindManager.callEvent(event);
   }
 
   /**
