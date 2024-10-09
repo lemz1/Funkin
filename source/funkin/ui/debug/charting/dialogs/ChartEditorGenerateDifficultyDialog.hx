@@ -18,8 +18,13 @@ class ChartEditorGenerateDifficultyDialog extends ChartEditorBaseDialog
       hideDialog(DialogButton.CANCEL);
     }
 
-    dialogGenerate.onClick = function(_) {
-      generateDifficulties();
+    dialogHints.onClick = function(_) {
+      generateDifficulties(true);
+      hideDialog(DialogButton.APPLY);
+    };
+
+    dialogNotes.onClick = function(_) {
+      generateDifficulties(false);
       hideDialog(DialogButton.APPLY);
     };
 
@@ -28,7 +33,7 @@ class ChartEditorGenerateDifficultyDialog extends ChartEditorBaseDialog
     chartEditorState.isHaxeUIDialogOpen = true;
   }
 
-  function generateDifficulties():Void
+  function generateDifficulties(onlyHints:Bool):Void
   {
     for (item in difficultyView.findComponents(null, ChartEditorDifficultyItem))
     {
@@ -38,6 +43,7 @@ class ChartEditorGenerateDifficultyDialog extends ChartEditorBaseDialog
           {
             difficultyId: item.difficultyDropdown.value.value,
             algorithm: RemoveNthTooClose(item.nStepper.value),
+            onlyHints: onlyHints
           });
       }
     }
@@ -48,7 +54,8 @@ class ChartEditorGenerateDifficultyDialog extends ChartEditorBaseDialog
   {
     super.update(elapsed);
 
-    dialogGenerate.disabled = cast(difficultyView.getComponentAt(0), ChartEditorDifficultyItem).difficultyFrame.hidden;
+    dialogHints.disabled = cast(difficultyView.getComponentAt(0), ChartEditorDifficultyItem).difficultyFrame.hidden;
+    dialogNotes.disabled = cast(difficultyView.getComponentAt(0), ChartEditorDifficultyItem).difficultyFrame.hidden;
   }
 
   public override function onClose(event:DialogEvent):Void

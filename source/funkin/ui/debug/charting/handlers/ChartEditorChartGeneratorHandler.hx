@@ -88,55 +88,9 @@ class ChartEditorChartGeneratorHandler
       }
     }
 
-    state.noteHints.sort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
+    hints.sort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
 
-    if (params.onlyHints)
-    {
-      return;
-    }
-
-    // NOTE GENERATION
-
-    var noteIndex:Int = 0;
-    var notes:Array<SongNoteData> = state.currentSongChartNoteData.copy();
-
-    for (hint in hints)
-    {
-      var noteAlreadyPlaced:Bool = false;
-      for (i in noteIndex...state.currentSongChartNoteData.length)
-      {
-        var note:SongNoteData = state.currentSongChartNoteData[i];
-
-        if (note.getStrumlineIndex() != hint.getStrumlineIndex())
-        {
-          continue;
-        }
-
-        if (note.time - hint.time <= NOTE_DIFF_THRESHOLD_MS)
-        {
-          noteIndex = i;
-        }
-        else
-        {
-          break;
-        }
-
-        if (Math.abs(note.time - hint.time) <= NOTE_DIFF_THRESHOLD_MS)
-        {
-          noteAlreadyPlaced = true;
-          break;
-        }
-      }
-
-      if (noteAlreadyPlaced)
-      {
-        continue;
-      }
-
-      notes.push(hint);
-    }
-
-    state.performCommand(new GenerateNotesCommand(notes, hints, null));
+    state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : hints, hints, null));
   }
 
   /**
@@ -160,7 +114,7 @@ class ChartEditorChartGeneratorHandler
         removeNthTooCloseAlgorithm(refNotes, n);
     };
 
-    state.performCommand(new GenerateNotesCommand(notes, params.difficultyId));
+    state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : notes, notes, params.difficultyId));
   }
 
   /**
@@ -212,7 +166,8 @@ class ChartEditorChartGeneratorHandler
       {
         var noteJ:SongNoteData = difficultyNotes[j];
         if (noteJ == null
-          || noteJ.length != 0
+          || noteJ.length != 0 // dont remove hold notes
+          || (noteJ.kind != null && noteJ.kind != '') // dont remove special notes
           || noteJ.getStrumlineIndex() != noteI.getStrumlineIndex()
           || notesToRemove.contains(noteJ))
         {
@@ -266,6 +221,7 @@ typedef ChartGeneratorDifficultyParams =
 {
   var difficultyId:String;
   var algorithm:ChartGeneratorDifficultyAlgorithm;
+  var onlyHints:Bool;
 }
 
 enum ChartGeneratorDifficultyAlgorithm

@@ -13,11 +13,11 @@ class GenerateNotesCommand implements ChartEditorCommand
   var previousNotes:Null<Array<SongNoteData>>;
   var previousHints:Null<Array<SongNoteData>>;
   var previousDifficultyId:Null<String>;
-  var notes:Array<SongNoteData>;
+  var notes:Null<Array<SongNoteData>>;
   var hints:Null<Array<SongNoteData>>;
   var difficultyId:Null<String>;
 
-  public function new(notes:Array<SongNoteData>, ?hints:Array<SongNoteData>, ?difficultyId:String)
+  public function new(?notes:Array<SongNoteData>, ?hints:Array<SongNoteData>, ?difficultyId:String)
   {
     this.previousNotes = null;
     this.previousHints = null;
@@ -34,17 +34,22 @@ class GenerateNotesCommand implements ChartEditorCommand
       return;
     }
 
+    var originalDifficulty:String = state.selectedDifficulty;
+
     previousDifficultyId = difficultyId ?? state.selectedDifficulty;
     state.selectedDifficulty = difficultyId ?? state.selectedDifficulty;
 
     previousNotes = state.currentSongChartNoteData.copy(); // should this be a deep copy?
-    previousHints = state.noteHints.copy();
+    previousHints = state.currentHints.copy();
 
-    state.currentSongChartNoteData = notes;
+    if (notes != null)
+    {
+      state.currentSongChartNoteData = notes;
+    }
 
     if (hints != null)
     {
-      state.noteHints = hints;
+      state.currentHints = hints;
     }
 
     state.playSound(Paths.sound('chartingSounds/noteLay'));
@@ -54,6 +59,8 @@ class GenerateNotesCommand implements ChartEditorCommand
     state.notePreviewDirty = true;
 
     state.sortChartData();
+
+    state.selectedDifficulty = originalDifficulty;
   }
 
   public function undo(state:ChartEditorState):Void
@@ -63,12 +70,12 @@ class GenerateNotesCommand implements ChartEditorCommand
       return;
     }
 
-    var previousDifficulty:String = state.selectedDifficulty;
+    var originalDifficulty:String = state.selectedDifficulty;
 
     state.selectedDifficulty = previousDifficultyId;
 
     state.currentSongChartNoteData = previousNotes;
-    state.noteHints = previousHints;
+    state.currentHints = previousHints;
     state.playSound(Paths.sound('chartingSounds/undo'));
 
     state.saveDataDirty = true;
@@ -77,7 +84,7 @@ class GenerateNotesCommand implements ChartEditorCommand
 
     state.sortChartData();
 
-    state.selectedDifficulty = previousDifficulty;
+    state.selectedDifficulty = originalDifficulty;
 
     previousNotes = null;
     previousHints = null;
@@ -87,17 +94,27 @@ class GenerateNotesCommand implements ChartEditorCommand
   public function shouldAddToHistory(state:ChartEditorState):Bool
   {
     // This command is undoable. Add to the history if we actually performed an action.
-    return previousNotes != null;
+    return previousNotes != null && previousHints != null && previousDifficultyId != null;
   }
 
   public function toString():String
   {
-    if (notes.length == 1)
+    var message:String = 'Generate ';
+
+    if (notes != null)
     {
-      var dir:String = notes[0].getDirectionName();
-      return 'Generate $dir Note';
+      message += '${notes.length} Note${notes.length > 1 ? 's' : ''}';
+      if (hints != null)
+      {
+        message += ' and ';
+      }
     }
 
-    return 'Generate ${notes.length} Notes';
+    if (hints != null)
+    {
+      message += '${hints.length} Hint${hints.length > 1 ? 's' : ''}';
+    }
+
+    return message;
   }
 }

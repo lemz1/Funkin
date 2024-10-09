@@ -1692,7 +1692,20 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * NOTE HINT STUFF
    */
-  var noteHints:Array<SongNoteData> = [];
+  var hints:Map<String, Array<SongNoteData>> = new Map<String, Array<SongNoteData>>();
+
+  var currentHints(get, set):Array<SongNoteData>;
+
+  function get_currentHints():Array<SongNoteData>
+  {
+    return hints.get(selectedDifficulty) ?? [];
+  }
+
+  function set_currentHints(value:Array<SongNoteData>):Array<SongNoteData>
+  {
+    hints.set(selectedDifficulty, value);
+    return value;
+  }
 
   var midiFile:Null<String> = null;
 
@@ -3897,7 +3910,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
         member.kill();
       }
 
-      for (hint in noteHints)
+      for (hint in currentHints)
       {
         if (hint.time < viewAreaTopMs || hint.time > viewAreaBottomMs)
         {
