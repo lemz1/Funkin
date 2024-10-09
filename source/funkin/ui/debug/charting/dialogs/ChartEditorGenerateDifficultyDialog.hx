@@ -23,29 +23,24 @@ class ChartEditorGenerateDifficultyDialog extends ChartEditorBaseDialog
       hideDialog(DialogButton.APPLY);
     };
 
-    difficultyView.addComponent(new ChartEditorDifficultyItem(difficultyView));
+    difficultyView.addComponent(new ChartEditorDifficultyItem(state2, difficultyView));
 
     chartEditorState.isHaxeUIDialogOpen = true;
   }
 
   function generateDifficulties():Void
   {
-    var refDifficultyId:String = chartEditorState.selectedDifficulty;
     for (item in difficultyView.findComponents(null, ChartEditorDifficultyItem))
     {
-      if (!item.difficultyFrame.hidden && item.difficultyTextField.value != null && item.difficultyTextField.value.length != 0)
+      if (!item.difficultyFrame.hidden && item.difficultyDropdown.value != null)
       {
         chartEditorState.generateChartDifficulty(
           {
-            refDifficultyId: refDifficultyId,
-            difficultyId: item.difficultyTextField.value.toLowerCase(),
+            difficultyId: item.difficultyDropdown.value.value,
             algorithm: RemoveNthTooClose(item.nStepper.value),
-            scrollSpeed: item.scrollSpeedStepper.value
           });
-        chartEditorState.selectedDifficulty = item.difficultyTextField.value.toLowerCase();
       }
     }
-    chartEditorState.selectedDifficulty = refDifficultyId;
   }
 
   // TODO: this should probably not be in the update function

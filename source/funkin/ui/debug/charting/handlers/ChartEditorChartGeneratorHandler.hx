@@ -1,5 +1,6 @@
 package funkin.ui.debug.charting.handlers;
 
+import funkin.ui.debug.charting.commands.GenerateNotesCommand;
 import funkin.ui.debug.charting.ChartEditorState;
 import funkin.data.song.SongData;
 import funkin.util.SortUtil;
@@ -26,8 +27,7 @@ class ChartEditorChartGeneratorHandler
    */
   public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorHintParams):Void
   {
-    state.noteDisplayDirty = true;
-    state.noteHints = [];
+    var hints:Array<SongNoteData> = [];
 
     var bpm:Float = 0;
     for (track in params.midi.tracks)
@@ -63,16 +63,16 @@ class ChartEditorChartGeneratorHandler
               // byte 2 = note
               var data:Int = (e.midiMessage.byte2 % 4) + (channel.isPlayerTrack ? 0 : 4);
               var time:Float = translateToMS(event.absoluteTime, bpm, params.midi.timeDivision);
-              state.noteHints.push(new SongNoteData(time, data, 0));
+              hints.push(new SongNoteData(time, data, 0));
             }
             else if (e.midiMessage.messageType == MessageType.NoteOff)
             {
-              if (state.noteHints.length == 0)
+              if (hints.length == 0)
               {
                 continue;
               }
 
-              var currentHint:SongNoteData = state.noteHints[state.noteHints.length - 1];
+              var currentHint:SongNoteData = hints[hints.length - 1];
               var threshold:Float = (60.0 / bpm) * 1000.0 * 0.25;
               var sustainLength:Float = translateToMS(event.absoluteTime, bpm, params.midi.timeDivision);
               sustainLength -= currentHint.time;
@@ -98,8 +98,9 @@ class ChartEditorChartGeneratorHandler
     // NOTE GENERATION
 
     var noteIndex:Int = 0;
+    var notes:Array<SongNoteData> = state.currentSongChartNoteData.copy();
 
-    for (hint in state.noteHints)
+    for (hint in hints)
     {
       var noteAlreadyPlaced:Bool = false;
       for (i in noteIndex...state.currentSongChartNoteData.length)
@@ -132,8 +133,10 @@ class ChartEditorChartGeneratorHandler
         continue;
       }
 
-      state.currentSongChartNoteData.insert(noteIndex + 1, hint);
+      notes.push(hint);
     }
+
+    state.performCommand(new GenerateNotesCommand(notes, hints, null));
   }
 
   /**
@@ -143,23 +146,21 @@ class ChartEditorChartGeneratorHandler
    */
   public static function generateChartDifficulty(state:ChartEditorState, params:ChartGeneratorDifficultyParams):Void
   {
-    var notes:Array<SongNoteData> = state.currentSongChartData.notes.get(params.refDifficultyId) ?? [];
+    var refNotes:Array<SongNoteData> = state.currentSongChartData.notes.get(state.selectedDifficulty) ?? [];
 
-    if (notes.length == 0)
+    if (refNotes.length == 0)
     {
-      trace("No Notes (ChartEditorChartGeneratorHandler.generateChartDifficulty)");
+      trace('Skipping Note Generation for \'${params.difficultyId.toTitleCase()}\', since \'${state.selectedDifficulty.toTitleCase()}\' doesn\'t contain  any notes.');
       return;
     }
 
-    var difficultyNotes:Array<SongNoteData> = switch (params.algorithm)
+    var notes:Array<SongNoteData> = switch (params.algorithm)
     {
       case RemoveNthTooClose(n):
-        removeNthTooCloseAlgorithm(notes, n);
+        removeNthTooCloseAlgorithm(refNotes, n);
     };
 
-    state.currentSongChartData.notes.set(params.difficultyId, difficultyNotes);
-
-    state.currentSongChartData.scrollSpeed.set(params.difficultyId, params.scrollSpeed);
+    state.performCommand(new GenerateNotesCommand(notes, params.difficultyId));
   }
 
   /**
@@ -263,10 +264,8 @@ typedef ChartGeneratorChannel =
 
 typedef ChartGeneratorDifficultyParams =
 {
-  var refDifficultyId:String;
   var difficultyId:String;
   var algorithm:ChartGeneratorDifficultyAlgorithm;
-  var scrollSpeed:Float;
 }
 
 enum ChartGeneratorDifficultyAlgorithm
