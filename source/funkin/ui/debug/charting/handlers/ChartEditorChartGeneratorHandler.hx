@@ -204,6 +204,12 @@ class ChartEditorChartGeneratorHandler
   }
 }
 
+typedef NoteMidiData =
+{
+  var note:Int;
+  var time:Float;
+}
+
 typedef ChartGeneratorHintParams =
 {
   var midi:MidiFile;
