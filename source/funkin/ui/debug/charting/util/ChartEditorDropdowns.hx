@@ -10,7 +10,7 @@ import haxe.ui.components.DropDown;
 import funkin.play.stage.Stage;
 import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.data.event.SongEventRegistry;
-import funkin.data.charting.GenerateOperatorRegistry;
+import funkin.data.charting.GenerateChartOperatorRegistry;
 import funkin.play.character.CharacterData.CharacterDataParser;
 
 /**
@@ -246,28 +246,24 @@ class ChartEditorDropdowns
     return returnValue;
   }
 
-  // public static function populateDropdownWithGenerateChartOperators(dropDown:DropDown):DropDownEntry
-  // {
-  //   dropDown.dataSource.clear();
-  //   for (op in GenerateChartOperatorRegistry.listOperators())
-  //   {
-  //     var value:DropDownEntry = {id: op.id, text: op.name};
-  //     dropDown.dataSource.add(value);
-  //   }
-  //   dropDown.dataSource.sort('text', ASCENDING);
-  //   return dropDown.dataSource.get(0);
-  // }
-  // public static function populateDropdownWithGenerateDifficultyOperators(dropDown:DropDown):DropDownEntry
-  // {
-  //   dropDown.dataSource.clear();
-  //   for (op in GenerateDifficultyOperatorRegistry.listOperators())
-  //   {
-  //     var value:DropDownEntry = {id: op.id, text: op.name};
-  //     dropDown.dataSource.add(value);
-  //   }
-  //   dropDown.dataSource.sort('text', ASCENDING);
-  //   return dropDown.dataSource.get(0);
-  // }
+  public static function populateDropdownWithGenerateChartOperators(dropDown:DropDown, startingOperatorId:String):DropDownEntry
+  {
+    var data:DropDownEntry = null;
+    dropDown.dataSource.clear();
+    for (op in GenerateChartOperatorRegistry.fetchEntries())
+    {
+      var value:DropDownEntry = {id: op.id, text: op.name};
+      dropDown.dataSource.add(value);
+      if (op.id == startingOperatorId)
+      {
+        data = value;
+      }
+    }
+    dropDown.dataSource.sort('text', ASCENDING);
+    data = data ?? dropDown.dataSource.get(0);
+    dropDown.value = data;
+    return data;
+  }
 }
 
 /**

@@ -2,6 +2,7 @@ package funkin.ui.debug.charting.handlers;
 
 import funkin.ui.debug.charting.commands.GenerateNotesCommand;
 import funkin.ui.debug.charting.ChartEditorState;
+import funkin.data.charting.GenerateChartOperatorRegistry;
 import funkin.data.song.SongData;
 import funkin.util.SortUtil;
 import funkin.util.FileUtil;
@@ -27,7 +28,7 @@ class ChartEditorChartGeneratorHandler
    */
   public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorHintParams):Void
   {
-    var hints:Array<SongNoteData> = [];
+    var data:Array<NoteMidiData> = [];
 
     var bpm:Float = 0;
     for (track in params.midi.tracks)
@@ -60,26 +61,30 @@ class ChartEditorChartGeneratorHandler
           case MidiMessage(e):
             if (e.midiMessage.messageType == MessageType.NoteOn)
             {
-              // byte 2 = note
-              var data:Int = (e.midiMessage.byte2 % 4) + (channel.isPlayerTrack ? 0 : 4);
               var time:Float = translateToMS(event.absoluteTime, bpm, params.midi.timeDivision);
-              hints.push(new SongNoteData(time, data, 0));
+              data.push(
+                {
+                  note: e.midiMessage.byte2,
+                  time: time,
+                  length: 0,
+                  isPlayerNote: channel.isPlayerTrack
+                });
             }
             else if (e.midiMessage.messageType == MessageType.NoteOff)
             {
-              if (hints.length == 0)
+              if (data.length == 0)
               {
                 continue;
               }
 
-              var currentHint:SongNoteData = hints[hints.length - 1];
+              var curData:NoteMidiData = data[data.length - 1];
               var threshold:Float = (60.0 / bpm) * 1000.0 * 0.25;
               var sustainLength:Float = translateToMS(event.absoluteTime, bpm, params.midi.timeDivision);
-              sustainLength -= currentHint.time;
+              sustainLength -= curData.time;
               sustainLength -= threshold;
               if (sustainLength > 0.001)
               {
-                currentHint.length = sustainLength;
+                curData.length = sustainLength;
               }
             }
           default:
@@ -88,9 +93,10 @@ class ChartEditorChartGeneratorHandler
       }
     }
 
-    hints.sort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
+    data.sort((a, b) -> FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time));
+    var notes:Array<SongNoteData> = GenerateChartOperatorRegistry.instance.fetchEntries()[0].execute(data);
 
-    state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : hints, hints, null));
+    state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : notes, notes, null));
   }
 
   /**
@@ -208,6 +214,8 @@ typedef NoteMidiData =
 {
   var note:Int;
   var time:Float;
+  var length:Float;
+  var isPlayerNote:Bool;
 }
 
 typedef ChartGeneratorHintParams =

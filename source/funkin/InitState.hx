@@ -17,7 +17,7 @@ import funkin.data.freeplay.album.AlbumRegistry;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.data.notestyle.NoteStyleRegistry;
-import funkin.data.charting.GenerateOperatorRegistry;
+import funkin.data.charting.GenerateChartOperatorRegistry;
 import funkin.data.song.SongRegistry;
 import funkin.data.event.SongEventRegistry;
 import funkin.data.stage.StageRegistry;
@@ -167,7 +167,7 @@ class InitState extends FlxState
     trace('Parsing game data...');
     var perfStart:Float = TimerUtil.start();
     SongEventRegistry.loadEventCache(); // SongEventRegistry is structured differently so it's not a BaseRegistry.
-    GenerateOperatorRegistry.instance.loadEntries();
+    GenerateChartOperatorRegistry.instance.loadEntries();
     SongRegistry.instance.loadEntries();
     LevelRegistry.instance.loadEntries();
     NoteStyleRegistry.instance.loadEntries();
