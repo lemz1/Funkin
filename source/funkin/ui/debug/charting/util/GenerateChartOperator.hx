@@ -3,6 +3,7 @@ package funkin.ui.debug.charting.util;
 import funkin.data.song.SongData.SongNoteData;
 import funkin.data.IClassRegistryEntry;
 import haxe.ui.containers.VBox;
+import haxe.ui.components.Label;
 
 /**
  * Scriptable chart generation operator
@@ -39,12 +40,22 @@ class GenerateChartOperator implements IClassRegistryEntry
    * Builds the haxe ui
    * @param root The root to add the components to
    */
-  public function buildUI(root:VBox):Void {}
+  public function buildUI(root:VBox):Void
+  {
+    var label:Label = new Label();
+    label.value = "None";
+    root.addComponent(label);
+  }
 
   public function destroy():Void {}
 
   public function toString():String
   {
     return 'GenerateChartOperator ($name)';
+  }
+
+  public function createNote(time:Float, data:Int, length:Float, ?kind:String):SongNoteData
+  {
+    return new SongNoteData(time, data, length, kind);
   }
 }

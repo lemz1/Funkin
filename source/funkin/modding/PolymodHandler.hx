@@ -8,6 +8,7 @@ import funkin.data.event.SongEventRegistry;
 import funkin.data.story.level.LevelRegistry;
 import funkin.data.notestyle.NoteStyleRegistry;
 import funkin.play.notes.notekind.NoteKindManager;
+import funkin.data.charting.GenerateChartOperatorRegistry;
 import funkin.data.song.SongRegistry;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.data.stage.StageRegistry;
@@ -416,6 +417,7 @@ class PolymodHandler
     // to ensure build macros work properly.
     SongEventRegistry.loadEventCache();
 
+    GenerateChartOperatorRegistry.instance.loadEntries();
     SongRegistry.instance.loadEntries();
     LevelRegistry.instance.loadEntries();
     NoteStyleRegistry.instance.loadEntries();

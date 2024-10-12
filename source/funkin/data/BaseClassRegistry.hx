@@ -78,6 +78,37 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
     return scriptedEntries.keys().array();
   }
 
+  /**
+   * Retrive entry by id
+   * @param id The ID
+   * @return Null<T>
+   */
+  public function fetchEntry(id:String):Null<T>
+  {
+    return entries.get(id);
+  }
+
+  /**
+   * Creates an instance of an entry
+   * @param id The id
+   * @return Null<T>
+   */
+  public function createInstanceOf(id:String):Null<T>
+  {
+    var scriptedEntry = scriptedEntries.get(id);
+    if (scriptedEntry != null)
+    {
+      return createScriptedEntry(scriptedEntry);
+    }
+
+    var entry = entries.get(id);
+    if (entry == null)
+    {
+      return null;
+    }
+    return Type.createInstance(Type.getClass(entry), []);
+  }
+
   function registerBuiltInClasses():Void
   {
     final baseEntryName:String = entryTraceName();

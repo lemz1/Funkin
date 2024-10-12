@@ -3,6 +3,7 @@ package funkin.ui.debug.charting.handlers;
 import funkin.ui.debug.charting.commands.GenerateNotesCommand;
 import funkin.ui.debug.charting.ChartEditorState;
 import funkin.data.charting.GenerateChartOperatorRegistry;
+import funkin.ui.debug.charting.util.GenerateChartOperator;
 import funkin.data.song.SongData;
 import funkin.util.SortUtil;
 import funkin.util.FileUtil;
@@ -26,7 +27,7 @@ class ChartEditorChartGeneratorHandler
    * @param state The Chart Editor State
    * @param params The Params
    */
-  public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorHintParams):Void
+  public static function generateChartFromMidi(state:ChartEditorState, params:ChartGeneratorParams):Void
   {
     var data:Array<NoteMidiData> = [];
 
@@ -94,7 +95,7 @@ class ChartEditorChartGeneratorHandler
     }
 
     data.sort((a, b) -> FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time));
-    var notes:Array<SongNoteData> = GenerateChartOperatorRegistry.instance.fetchEntries()[0].execute(data);
+    var notes:Array<SongNoteData> = params.entry.execute(data);
 
     state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : notes, notes, null));
   }
@@ -218,8 +219,9 @@ typedef NoteMidiData =
   var isPlayerNote:Bool;
 }
 
-typedef ChartGeneratorHintParams =
+typedef ChartGeneratorParams =
 {
+  var entry:GenerateChartOperator;
   var midi:MidiFile;
   var channels:Array<ChartGeneratorChannel>;
   var onlyHints:Bool;
