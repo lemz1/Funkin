@@ -33,7 +33,8 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
   /**
    * Loads all built-in and scripted classes
    */
-  public function loadEntries():Void {
+  public function loadEntries():Void
+  {
     this.entries.clear();
     this.scriptedEntries.clear();
 
@@ -81,7 +82,7 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
   {
     final baseEntryName:String = entryTraceName();
 
-    trace('Instantiating ${getBuiltInEntries().length} built-in${baseEntryName}s...');
+    trace('Instantiating ${getBuiltInEntries().length - 2} built-in${baseEntryName}s...');
     for (builtInEntryCls in getBuiltInEntries())
     {
       var builtInEntryClsName:String = Type.getClassName(builtInEntryCls);

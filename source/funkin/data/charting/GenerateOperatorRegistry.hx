@@ -10,7 +10,7 @@ import funkin.ui.debug.charting.util.ScriptedGenerateChartOperator;
 import funkin.ui.debug.charting.util.GenerateDifficultyOperator;
 import funkin.ui.debug.charting.util.ScriptedGenerateDifficultyOperator;
 
-@:build(funkin.util.macro.ClassRegistryMacro.build(funkin.data.charting.ClassEntry, funkin.ui.debug.charting.util.ScriptedGenerateChartOperator))
+@:build(funkin.util.macro.ClassRegistryMacro.build())
 class TestMacro extends BaseClassRegistry<ClassEntry>
 {
   public function new()
