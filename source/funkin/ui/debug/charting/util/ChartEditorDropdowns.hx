@@ -248,9 +248,9 @@ class ChartEditorDropdowns
 
   public static function populateDropdownWithGenerateChartOperators(dropDown:DropDown, startingOperatorId:String):DropDownEntry
   {
-    var data:DropDownEntry = null;
+    var data:Null<DropDownEntry> = null;
     dropDown.dataSource.clear();
-    for (op in GenerateChartOperatorRegistry.fetchEntries())
+    for (op in GenerateChartOperatorRegistry.instance.fetchEntries())
     {
       var value:DropDownEntry = {id: op.id, text: op.name};
       dropDown.dataSource.add(value);
