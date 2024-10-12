@@ -5,51 +5,245 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 import funkin.util.macro.MacroUtil;
 
+using StringTools;
+
 class ClassRegistryMacro
 {
-  public static macro function build(?scriptedClsExpr:Expr):Array<Field>
+  public static macro function build(entryExpr:ExprOf<Class<Dynamic>>, scriptedEntryExpr:ExprOf<Class<Dynamic>>):Array<Field>
   {
     var fields = Context.getBuildFields();
 
     var clsType = Context.getLocalClass().get();
-    var clsPackage = clsType.module.substr(0, clsType.module.lastIndexOf('.'));
-    var clsName = '${clsPackage}.${clsType.name}';
-    var cls = Type.resolveClass(clsName);
+    var clsTypeName = clsType.pack.join('.') + '.' + clsType.name;
 
-    var scriptedClsType = MacroUtil.getClassTypeFromExpr(scriptedClsExpr);
-    var scriptedClsPackage = scriptedClsType.module.substr(0, scriptedClsType.module.lastIndexOf('.'));
-    var scriptedClsName = '${scriptedClsPackage}.${scriptedClsType.name}';
-    var scriptedCls = Type.resolveClass(scriptedClsName);
+    var entryClsType = MacroUtil.getClassTypeFromExpr(entryExpr);
+    var entryClsTypeName = entryClsType.pack.join('.') + '.' + entryClsType.name;
+
+    var scriptedEntryClsType = MacroUtil.getClassTypeFromExpr(scriptedEntryExpr);
+    var scriptedEntryClsTypeName = scriptedEntryClsType.pack.join('.') + '.' + scriptedEntryClsType.name;
 
     fields.push(
       {
-        name: "getBuiltInEntries",
-        access: [Access.APrivate],
+        name: '_instance',
+        access: [
+          Access.APublic,
+          Access.AStatic
+        ],
+        kind: FieldType.FVar(
+          ComplexType.TPath(
+            {
+              pack: [],
+              name: 'Null',
+              params: [
+                TypeParam.TPType(
+                  ComplexType.TPath(
+                    {
+                      pack: clsType.pack,
+                      name: clsType.name,
+                      params: []
+                    }
+                  )
+                )
+              ]
+            }
+          )
+        ),
+        pos: Context.currentPos()
+      });
+
+    fields.push(
+      {
+        name: 'instance',
+        access: [
+          Access.APublic,
+          Access.AStatic
+        ],
+        kind: FieldType.FProp(
+          "get",
+          "never",
+          ComplexType.TPath(
+            {
+              pack: clsType.pack,
+              name: clsType.name,
+              params: []
+            }
+          )
+        ),
+        pos: Context.currentPos()
+      });
+
+    fields.push(
+      {
+        name: 'get_instance',
+        access: [
+          Access.APrivate,
+          Access.AStatic
+        ],
         kind: FFun(
           {
             args: [],
             expr: macro
-            {return ClassMacro.listSubclassesOf(funkin.data.charting.ClassEntry);},
+            {
+              if (_instance == null) {
+                _instance = Type.createInstance(Type.resolveClass($v{clsTypeName}), []);
+              }
+              return _instance;
+            },
             params: [],
-            ret: (macro :List<Class<Dynamic>>)
+            ret: ComplexType.TPath(
+              {
+                pack: clsType.pack,
+                name: clsType.name,
+                params: []
+              }
+            )
           }),
         pos: Context.currentPos()
       });
 
     fields.push(
       {
-        name: "createScriptedEntry",
+        name: 'entryTraceName',
         access: [Access.APrivate],
-        kind: FFun(
+        kind: FieldType.FFun(
           {
-            args: [
-              {name: 'id', type: (macro :String)}],
+            args: [],
             expr: macro
             {
-              return $v{scriptedCls}.init('LOL'); // i dont think this works
+              var traceName:String = '';
+              for (i in 0...$v{entryClsType.name.length}) {
+                var c = $v{entryClsType.name}.charAt(i);
+                if ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.contains(c)) {
+                  traceName += ' ';
+                }
+                traceName += c.toLowerCase();
+              }
+              return traceName;
             },
             params: [],
-            ret: (macro :Null<Dynamic>)
+            ret: (macro :String)
+          }),
+        pos: Context.currentPos()
+      });
+
+    fields.push(
+      {
+        name: 'ignoreBuiltInEntry',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
+          {
+            args: [
+              {
+                name: 'builtInEntryName',
+                type: (macro :String)
+              }
+            ],
+            expr: macro
+            {
+              return
+                 builtInEntryName == $v{entryClsTypeName}
+              || builtInEntryName == $v{scriptedEntryClsTypeName};
+            },
+            params: [],
+            ret: (macro :Bool)
+          }),
+        pos: Context.currentPos()
+      });
+
+    fields.push(
+    {
+      name: 'listScriptedClasses',
+      access: [Access.APrivate],
+      kind: FieldType.FFun(
+        {
+          args: [],
+          expr: macro
+          {
+            return [];
+            // return ${scriptedEntryExpr}.listScriptClasses();
+          },
+          params: [],
+          ret: (macro :Array<String>)
+        }),
+      pos: Context.currentPos()
+    });
+
+    fields.push(
+      {
+        name: 'getBuiltInEntries',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
+          {
+            args: [],
+            expr: macro
+            {
+              return ClassMacro.listSubclassesOf($entryExpr);
+            },
+            params: [],
+            ret: ComplexType.TPath(
+              {
+                pack: [],
+                name: 'List',
+                params: [
+                  TypeParam.TPType(
+                    ComplexType.TPath(
+                      {
+                        pack: [],
+                        name: 'Class',
+                        params: [
+                          TypeParam.TPType(
+                            ComplexType.TPath(
+                              {
+                                pack: entryClsType.pack,
+                                name: entryClsType.name
+                              }
+                            )
+                          )
+                        ]
+                      }
+                    )
+                  )
+                ]
+              }
+            )
+          }),
+        pos: Context.currentPos()
+      });
+
+    fields.push(
+      {
+        name: 'createScriptedEntry',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
+          {
+            args: [
+              {
+                name: 'id',
+                type: (macro :String)
+              }
+            ],
+            expr: macro
+            {
+              return null;
+              // return ${scriptedEntryExpr}.init(id, 'UNKNOWN', 'UNKNOWN');
+            },
+            params: [],
+            ret: ComplexType.TPath(
+              {
+                pack: [],
+                name:'Null',
+                params: [
+                  TypeParam.TPType(
+                    ComplexType.TPath(
+                      {
+                        pack: entryClsType.pack,
+                        name: entryClsType.name
+                      }
+                    )
+                  )
+                ]
+              }
+            )
           }),
         pos: Context.currentPos()
       });
