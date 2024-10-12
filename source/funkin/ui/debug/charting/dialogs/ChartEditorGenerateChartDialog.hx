@@ -26,13 +26,13 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 {
   var dropHandler:DialogDropTarget;
   var midiEntry:ChartEditorGenerateChartMidiEntry;
-  var entry(default, set):GenerateChartOperator;
+  var algorithm(default, set):GenerateChartOperator;
 
-  function set_entry(value:GenerateChartOperator):GenerateChartOperator
+  function set_algorithm(value:GenerateChartOperator):GenerateChartOperator
   {
-    this.entry = value;
-    dialogHints.disabled = this.entry == null || this.midi == null;
-    dialogNotes.disabled = this.entry == null || this.midi == null;
+    this.algorithm = value;
+    dialogHints.disabled = this.algorithm == null || this.midi == null;
+    dialogNotes.disabled = this.algorithm == null || this.midi == null;
     return value;
   }
 
@@ -41,8 +41,8 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
   function set_midi(value:Null<MidiFile>):Null<MidiFile>
   {
     this.midi = value;
-    dialogHints.disabled = this.entry == null || this.midi == null;
-    dialogNotes.disabled = this.entry == null || this.midi == null;
+    dialogHints.disabled = this.algorithm == null || this.midi == null;
+    dialogNotes.disabled = this.algorithm == null || this.midi == null;
 
     if (this.midi != null)
     {
@@ -205,7 +205,7 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
 
     chartEditorState.generateChartFromMidi(
       {
-        entry: entry,
+        algorithm: algorithm,
         midi: midi,
         channels: channels,
         onlyHints: onlyHints
@@ -237,9 +237,9 @@ class ChartEditorGenerateChartDialog extends ChartEditorBaseDialog
     var vbox:VBox = new VBox();
     vbox.percentWidth = 100;
 
-    entry?.destroy();
-    entry = GenerateChartOperatorRegistry.instance.createInstanceOf(algorithmDropdown.value.id);
-    entry?.buildUI(vbox);
+    algorithm?.destroy();
+    algorithm = GenerateChartOperatorRegistry.instance.createInstanceOf(algorithmDropdown.value.id);
+    algorithm?.buildUI(vbox);
 
     paramView.addComponent(vbox);
   }

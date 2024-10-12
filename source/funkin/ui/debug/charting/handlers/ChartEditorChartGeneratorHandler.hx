@@ -2,8 +2,8 @@ package funkin.ui.debug.charting.handlers;
 
 import funkin.ui.debug.charting.commands.GenerateNotesCommand;
 import funkin.ui.debug.charting.ChartEditorState;
-import funkin.data.charting.GenerateChartOperatorRegistry;
 import funkin.ui.debug.charting.util.GenerateChartOperator;
+import funkin.ui.debug.charting.util.GenerateDifficultyOperator;
 import funkin.data.song.SongData;
 import funkin.util.SortUtil;
 import funkin.util.FileUtil;
@@ -18,10 +18,6 @@ import flixel.util.FlxSort;
 @:access(funkin.ui.debug.charting.ChartEditorState)
 class ChartEditorChartGeneratorHandler
 {
-  static final CHUNK_INTERVAL_MS:Float = 2500;
-
-  static final NOTE_DIFF_THRESHOLD_MS:Float = 1;
-
   /**
    * Generate Hints (and Notes)
    * @param state The Chart Editor State
@@ -95,7 +91,7 @@ class ChartEditorChartGeneratorHandler
     }
 
     data.sort((a, b) -> FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time));
-    var notes:Array<SongNoteData> = params.entry.execute(data);
+    var notes:Array<SongNoteData> = params.algorithm.execute(data);
 
     state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : notes, notes, null));
   }
@@ -115,11 +111,8 @@ class ChartEditorChartGeneratorHandler
       return;
     }
 
-    var notes:Array<SongNoteData> = switch (params.algorithm)
-    {
-      case RemoveNthTooClose(n):
-        removeNthTooCloseAlgorithm(refNotes, n);
-    };
+    // deepClone: just to be safe
+    var notes:Array<SongNoteData> = params.algorithm.execute(refNotes.deepClone());
 
     state.performCommand(new GenerateNotesCommand(params.onlyHints ? null : notes, notes, params.difficultyId));
   }
@@ -151,64 +144,6 @@ class ChartEditorChartGeneratorHandler
   {
     return (time / timeDivision) * (60.0 / bpm) * 1000.0;
   }
-
-  static function removeNthTooCloseAlgorithm(notes:Array<SongNoteData>, n:Int):Array<SongNoteData>
-  {
-    var difficultyNotes:Array<SongNoteData> = notes.copy();
-    // difficultyNotes.insertionSort(SortUtil.noteDataByTime.bind(FlxSort.ASCENDING));
-
-    var threshold:Float = Conductor.instance.stepLengthMs * 1.5;
-    var notesToRemove:Array<SongNoteData> = [];
-    var curNPlayer:Int = 0;
-    var curNOpponent:Int = 0;
-    for (i in 0...(difficultyNotes.length - 1))
-    {
-      var noteI:SongNoteData = difficultyNotes[i];
-      if (noteI == null || notesToRemove.contains(noteI))
-      {
-        continue;
-      }
-
-      for (j in (i + 1)...difficultyNotes.length)
-      {
-        var noteJ:SongNoteData = difficultyNotes[j];
-        if (noteJ == null
-          || noteJ.length != 0 // dont remove hold notes
-          || (noteJ.kind != null && noteJ.kind != '') // dont remove special notes
-          || noteJ.getStrumlineIndex() != noteI.getStrumlineIndex()
-          || notesToRemove.contains(noteJ))
-        {
-          continue;
-        }
-
-        var curN:Float = noteJ.getStrumlineIndex() == 0 ? curNPlayer : curNOpponent;
-
-        if (Math.abs(noteJ.time - noteI.time) <= threshold)
-        {
-          if (curN % n == 0)
-          {
-            notesToRemove.push(noteJ);
-          }
-
-          if (noteJ.getStrumlineIndex() == 0)
-          {
-            curNPlayer++;
-          }
-          else
-          {
-            curNOpponent++;
-          }
-        }
-      }
-    }
-
-    for (note in notesToRemove)
-    {
-      difficultyNotes.remove(note);
-    }
-
-    return difficultyNotes;
-  }
 }
 
 typedef NoteMidiData =
@@ -221,7 +156,7 @@ typedef NoteMidiData =
 
 typedef ChartGeneratorParams =
 {
-  var entry:GenerateChartOperator;
+  var algorithm:GenerateChartOperator;
   var midi:MidiFile;
   var channels:Array<ChartGeneratorChannel>;
   var onlyHints:Bool;
@@ -235,8 +170,8 @@ typedef ChartGeneratorChannel =
 
 typedef ChartGeneratorDifficultyParams =
 {
+  var algorithm:GenerateDifficultyOperator;
   var difficultyId:String;
-  var algorithm:ChartGeneratorDifficultyAlgorithm;
   var onlyHints:Bool;
 }
 
