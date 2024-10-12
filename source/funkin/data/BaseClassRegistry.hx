@@ -31,6 +31,17 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
   }
 
   /**
+   * Loads all built-in and scripted classes
+   */
+  public function loadEntries():Void {
+    this.entries.clear();
+    this.scriptedEntries.clear();
+
+    registerBuiltInClasses();
+    registerScriptedClasses();
+  }
+
+  /**
    * Retrieve all registered Entries
    * @return Entries
    */
@@ -68,75 +79,63 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
 
   function registerBuiltInClasses():Void
   {
-    final registryName:String = registryTraceName();
+    final baseEntryName:String = entryTraceName();
 
-    trace('Instantiating ${getBuiltInEntries().length} built-in${registryName}s...');
-    for (entryCls in getBuiltInEntries())
+    trace('Instantiating ${getBuiltInEntries().length} built-in${baseEntryName}s...');
+    for (builtInEntryCls in getBuiltInEntries())
     {
-      var entryClsName:String = Type.getClassName(entryCls);
-      if (entryClsName == 'funkin.ui.debug.charting.util.GenerateDifficultyOperator'
-        || entryClsName == 'funkin.ui.debug.charting.util.ScriptedGenerateDifficultyOperator')
+      var builtInEntryClsName:String = Type.getClassName(builtInEntryCls);
+      if (ignoreBuiltInEntry(builtInEntryClsName))
       {
         continue;
       }
 
-      var entry:T = Type.createInstance(entryCls, []);
+      var builtInEntry:T = Type.createInstance(builtInEntryCls, []);
 
-      if (entry != null)
+      if (builtInEntry != null)
       {
-        trace('  Loaded built-in${registryName}: ${entry.id}');
-        entries.set(entry.id, entry);
+        trace('  Loaded built-in${baseEntryName}: ${builtInEntry.id}');
+        entries.set(builtInEntry.id, builtInEntry);
       }
       else
       {
-        trace('  Failed to load built-in${registryName}: ${Type.getClassName(entryCls)}');
+        trace('  Failed to load built-in${baseEntryName}: ${builtInEntryClsName}');
       }
     }
   }
 
   function registerScriptedClasses():Void
   {
-    final registryName:String = registryTraceName();
+    final baseEntryName:String = entryTraceName();
 
-    // var scriptedEntryClsNames:Array<String> = ScriptedGenerateDifficultyOperator.listScriptClasses();
-    var scriptedEntryClsNames:Array<String> = [];
-    trace('Instantiating ${scriptedEntryClsNames.length} scripted${registryName}s...');
+    var scriptedEntryClsNames:Array<String> = listScriptedClasses();
+    trace('Instantiating ${scriptedEntryClsNames.length} scripted${baseEntryName}s...');
     if (scriptedEntryClsNames == null || scriptedEntryClsNames.length == 0) return;
 
-    for (entryCls in scriptedEntryClsNames)
+    for (scriptedEntryCls in scriptedEntryClsNames)
     {
-      var entry:Null<T> = createScriptedEntry(entryCls);
+      var scriptedEntry:Null<T> = createScriptedEntry(scriptedEntryCls);
 
-      if (entry != null)
+      if (scriptedEntry != null)
       {
-        trace('  Loaded scripted${registryName}: ${entry.id}');
-        entries.set(entry.id, entry);
-        scriptedEntries.set(entry.id, entryCls);
+        trace('  Loaded scripted${baseEntryName}: ${scriptedEntry.id}');
+        entries.set(scriptedEntry.id, scriptedEntry);
+        scriptedEntries.set(scriptedEntry.id, scriptedEntryCls);
       }
       else
       {
-        trace('  Failed to instantiate scripted${registryName} class: ${entryCls}');
+        trace('  Failed to instantiate scripted${baseEntryName} class: ${scriptedEntryCls}');
       }
     }
   }
 
-  function registryTraceName():String
-  {
-    var registryName:String = '';
-    var str:String = Type.getClassName(BaseClassRegistry);
-    return str;
-    // for (c in Type.getClassName(BaseClassRegistry))
-    // {
-    //   if ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.contains(c))
-    //   {
-    //     registryName += '';
-    //   }
-    //   registryName += c;
-    // }
-    // return registryName.toLowerCase();
-  }
+  abstract function entryTraceName():String;
 
-  abstract function getBuiltInEntries():List<Class<Dynamic>>;
+  abstract function listScriptedClasses():Array<String>;
 
-  abstract function createScriptedEntry(id:String):Null<Dynamic>;
+  abstract function ignoreBuiltInEntry(builtInEntryName:String):Bool;
+
+  abstract function getBuiltInEntries():List<Class<T>>;
+
+  abstract function createScriptedEntry(id:String):Null<T>;
 }
