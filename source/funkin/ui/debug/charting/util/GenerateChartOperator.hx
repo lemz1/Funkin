@@ -1,12 +1,13 @@
 package funkin.ui.debug.charting.util;
 
 import funkin.data.song.SongData.SongNoteData;
+import funkin.data.IClassRegistryEntry;
 import haxe.ui.containers.VBox;
 
 /**
  * Scriptable chart generation operator
  */
-class GenerateChartOperator
+class GenerateChartOperator implements IClassRegistryEntry
 {
   /**
    * Internal ID
@@ -39,6 +40,8 @@ class GenerateChartOperator
    * @param root The root to add the components to
    */
   public function buildUI(root:VBox):Void {}
+
+  public function destroy():Void {}
 
   public function toString():String
   {

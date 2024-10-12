@@ -34,8 +34,6 @@ class Main extends Sprite
     CrashHandler.initialize();
     CrashHandler.queryStatus();
 
-    funkin.data.charting.GenerateOperatorRegistry.TestMacro.instance.loadEntries();
-    trace(funkin.data.charting.GenerateOperatorRegistry.TestMacro.instance.fetchEntryIds());
     Lib.current.addChild(new Main());
   }
 

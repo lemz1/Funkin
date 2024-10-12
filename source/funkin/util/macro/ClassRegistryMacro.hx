@@ -2,9 +2,7 @@ package funkin.util.macro;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import haxe.macro.ExprTools;
 import haxe.macro.Type;
-import funkin.util.macro.MacroUtil;
 
 using StringTools;
 
@@ -25,6 +23,7 @@ class ClassRegistryMacro
     //     // do nothing
     // }
 
+    // we have to retrieve the type parameter using the name of the super class
     var superCls = cls.superClass.t.get();
     var entryClsName = superCls.name.substring(superCls.name.indexOf('_') + 1, superCls.name.length).replace('_', '.');
     var entryExpr = Context.parse(entryClsName, Context.currentPos());
@@ -34,7 +33,7 @@ class ClassRegistryMacro
       case Type.TInst(t, _params):
         t.get();
       default:
-        throw 'WHAT THE HELL';
+        throw 'Not A Class (${entryClsName})';
     };
 
     var scriptedEntryClsName = entryCls.pack.join('.') + '.Scripted' + entryCls.name;
@@ -45,7 +44,7 @@ class ClassRegistryMacro
       case Type.TInst(t, _params):
         t.get();
       default:
-        throw 'WHAT THE HELL';
+        throw 'Not A Class (${scriptedEntryClsName})';
     };
 
     var initArgs:Int = 0;
@@ -59,10 +58,10 @@ class ClassRegistryMacro
           case Type.TFun(args, ret):
             initArgs = args.length;
           default:
-            // do nothing
+            throw 'No Constructor';
         }
       default:
-        // do nothing
+        throw 'No Constructor';
     }
 
     var scriptedStrExpr = '${scriptedEntryClsName}.init(id';
@@ -207,7 +206,7 @@ class ClassRegistryMacro
             args: [],
             expr: macro
             {
-              return ClassMacro.listSubclassesOf($entryExpr);
+              return funkin.util.macro.ClassMacro.listSubclassesOf($entryExpr);
             },
             params: [],
             ret: ComplexType.TPath(
