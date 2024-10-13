@@ -248,23 +248,6 @@ class ClassRegistryMacro
 
   static function buildCreateScriptedEntryField(entryCls:ClassType, scriptedEntryCls:ClassType):Field
   {
-    var initArgs:Int = 0;
-    switch (entryCls.constructor.get().type)
-    {
-      case Type.TFun(args, _):
-        initArgs = args.length;
-      case Type.TLazy(f):
-        switch (f())
-        {
-          case Type.TFun(args, _):
-            initArgs = args.length;
-          default:
-            throw 'No Constructor';
-        }
-      default:
-        throw 'No Constructor';
-    }
-
     var scriptedStrExpr = '${scriptedEntryCls.pack.join('.')}.${scriptedEntryCls.name}.init(clsName, ${buildNullArgs(entryCls.constructor.get())})';
     var scriptedInitExpr = Context.parse(scriptedStrExpr, Context.currentPos());
 
