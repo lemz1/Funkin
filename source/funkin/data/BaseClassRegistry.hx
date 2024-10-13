@@ -169,5 +169,5 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
 
   abstract function getBuiltInEntries():List<Class<T>>;
 
-  abstract function createScriptedEntry(id:String):Null<T>;
+  abstract function createScriptedEntry(clsName:String):Null<T>;
 }

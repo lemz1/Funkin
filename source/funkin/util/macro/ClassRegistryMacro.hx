@@ -64,7 +64,7 @@ class ClassRegistryMacro
         throw 'No Constructor';
     }
 
-    var scriptedStrExpr = '${scriptedEntryClsName}.init(id';
+    var scriptedStrExpr = '${scriptedEntryClsName}.init(clsName';
     for (i in 0...initArgs)
     {
       scriptedStrExpr += ', null';
@@ -240,7 +240,7 @@ class ClassRegistryMacro
           {
             args: [
               {
-                name: 'id',
+                name: 'clsName',
                 type: (macro :String)
               }
             ],
