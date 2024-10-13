@@ -68,7 +68,7 @@ class ClassRegistryMacro
     fields.push(
       {
         name: '_instance',
-        access: [Access.APublic, Access.AStatic],
+        access: [Access.APrivate, Access.AStatic],
         kind: FieldType.FVar(ComplexType.TPath(
           {
             pack: [],
