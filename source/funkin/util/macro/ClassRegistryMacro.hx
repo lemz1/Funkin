@@ -34,7 +34,6 @@ class ClassRegistryMacro
   #if macro
   static function getEntryClass(cls:ClassType):ClassType
   {
-    // we have to retrieve the type parameter using the name of the super class
     switch (cls.superClass.t.get().kind)
     {
       case KGenericInstance(_, params):
