@@ -8,13 +8,9 @@ import haxe.ui.components.Label;
 /**
  * Scriptable chart generation operator
  */
+@:build(funkin.util.macro.ClassEntryMacro.build())
 class GenerateChartOperator implements IClassRegistryEntry
 {
-  /**
-   * Internal ID
-   */
-  public var id:String;
-
   /**
    * Displayed Name in Chart Editor dropdown
    */
@@ -45,13 +41,6 @@ class GenerateChartOperator implements IClassRegistryEntry
     var label:Label = new Label();
     label.value = "None";
     root.addComponent(label);
-  }
-
-  public function destroy():Void {}
-
-  public function toString():String
-  {
-    return 'GenerateChartOperator ($name)';
   }
 
   public function createNote(time:Float, data:Int, length:Float, ?kind:String):SongNoteData

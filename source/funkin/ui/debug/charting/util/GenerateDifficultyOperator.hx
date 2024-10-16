@@ -8,13 +8,9 @@ import haxe.ui.components.Label;
 /**
  * Scriptable difficulty generation operator
  */
+@:build(funkin.util.macro.ClassEntryMacro.build())
 class GenerateDifficultyOperator implements IClassRegistryEntry
 {
-  /**
-   * Internal ID
-   */
-  public var id:String;
-
   /**
    * Displayed Name in Chart Editor dropdown
    */
@@ -45,13 +41,6 @@ class GenerateDifficultyOperator implements IClassRegistryEntry
     var label:Label = new Label();
     label.value = "None";
     root.addComponent(label);
-  }
-
-  public function destroy():Void {}
-
-  public function toString():String
-  {
-    return 'GenerateDifficultyOperator ($name)';
   }
 
   public function createNote(time:Float, data:Int, length:Float, ?kind:String):SongNoteData

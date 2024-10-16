@@ -16,22 +16,34 @@ class ClassRegistryMacro
     var entryCls = getEntryClass(cls);
     var scriptedEntryCls = getScriptedEntryClass(entryCls);
 
-    fields = fields.concat(buildInstanceField(cls));
+    buildInstanceField(cls, fields);
 
-    fields.push(buildEntryTraceNameField(entryCls));
+    buildEntryTraceNameField(entryCls, fields);
 
-    fields.push(buildIgnoreBuiltInEntryField(entryCls, scriptedEntryCls));
+    buildIgnoreBuiltInEntryField(entryCls, scriptedEntryCls, fields);
 
-    fields.push(buildListScriptedClassesField(scriptedEntryCls));
+    buildListScriptedClassesField(scriptedEntryCls, fields);
 
-    fields.push(buildGetBuildInEntriesField(entryCls));
+    buildGetBuildInEntriesField(entryCls, fields);
 
-    fields.push(buildCreateScriptedEntryField(entryCls, scriptedEntryCls));
+    buildCreateScriptedEntryField(entryCls, scriptedEntryCls, fields);
 
     return fields;
   }
 
   #if macro
+  static function shouldBuildField(name:String, fields:Array<Dynamic>):Bool // fields can be Array<Field> or Array<ClassField>
+  {
+    for (field in fields)
+    {
+      if (field.name == name)
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
   static function getEntryClass(cls:ClassType):ClassType
   {
     switch (cls.superClass.t.get().kind)
@@ -61,9 +73,12 @@ class ClassRegistryMacro
     };
   }
 
-  static function buildInstanceField(cls:ClassType):Array<Field>
+  static function buildInstanceField(cls:ClassType, fields:Array<Field>):Void
   {
-    var fields = [];
+    if (!shouldBuildField('instance', fields))
+    {
+      return;
+    }
 
     fields.push(
       {
@@ -126,162 +141,190 @@ class ClassRegistryMacro
           }),
         pos: Context.currentPos()
       });
-
-    return fields;
   }
 
-  static function buildEntryTraceNameField(entryCls:ClassType):Field
+  static function buildEntryTraceNameField(entryCls:ClassType, fields:Array<Field>):Void
   {
-    return {
-      name: 'entryTraceName',
-      access: [Access.APrivate],
-      kind: FieldType.FFun(
-        {
-          args: [],
-          expr: macro
+    if (!shouldBuildField('entryTraceName', fields))
+    {
+      return;
+    }
+
+    fields.push(
+      {
+        name: 'entryTraceName',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
           {
-            var traceName:String = '';
-            for (i in 0...$v{entryCls.name.length})
+            args: [],
+            expr: macro
             {
-              var c = $v{entryCls.name}.charAt(i);
-              if ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.contains(c))
+              var traceName:String = '';
+              for (i in 0...$v{entryCls.name.length})
               {
-                traceName += ' ';
+                var c = $v{entryCls.name}.charAt(i);
+                if ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.contains(c))
+                {
+                  traceName += ' ';
+                }
+                traceName += c.toLowerCase();
               }
-              traceName += c.toLowerCase();
-            }
-            return traceName;
-          },
-          params: [],
-          ret: (macro :String)
-        }),
-      pos: Context.currentPos()
-    };
+              return traceName;
+            },
+            params: [],
+            ret: (macro :String)
+          }),
+        pos: Context.currentPos()
+      });
   }
 
-  static function buildIgnoreBuiltInEntryField(entryCls:ClassType, scriptedEntryCls:ClassType):Field
+  static function buildIgnoreBuiltInEntryField(entryCls:ClassType, scriptedEntryCls:ClassType, fields:Array<Field>):Void
   {
+    if (!shouldBuildField('ignoreBuiltInEntry', fields))
+    {
+      return;
+    }
+
     var entryClsName = '${entryCls.pack.join('.')}.${entryCls.name}';
     var scriptedEntryClsName = '${scriptedEntryCls.pack.join('.')}.${scriptedEntryCls.name}';
 
-    return {
-      name: 'ignoreBuiltInEntry',
-      access: [Access.APrivate],
-      kind: FieldType.FFun(
-        {
-          args: [
-            {
-              name: 'builtInEntryName',
-              type: (macro :String)
-            }
-          ],
-          expr: macro
+    fields.push(
+      {
+        name: 'ignoreBuiltInEntry',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
           {
-            return builtInEntryName == $v{entryClsName} || builtInEntryName == $v{scriptedEntryClsName};
-          },
-          params: [],
-          ret: (macro :Bool)
-        }),
-      pos: Context.currentPos()
-    };
+            args: [
+              {
+                name: 'builtInEntryName',
+                type: (macro :String)
+              }
+            ],
+            expr: macro
+            {
+              return builtInEntryName == $v{entryClsName} || builtInEntryName == $v{scriptedEntryClsName};
+            },
+            params: [],
+            ret: (macro :Bool)
+          }),
+        pos: Context.currentPos()
+      });
   }
 
-  static function buildListScriptedClassesField(scriptedEntryCls:ClassType):Field
+  static function buildListScriptedClassesField(scriptedEntryCls:ClassType, fields:Array<Field>):Void
   {
+    if (!shouldBuildField('listScriptedClasses', fields))
+    {
+      return;
+    }
+
     var scriptedEntryExpr = Context.parse('${scriptedEntryCls.pack.join('.')}.${scriptedEntryCls.name}', Context.currentPos());
 
-    return {
-      name: 'listScriptedClasses',
-      access: [Access.APrivate],
-      kind: FieldType.FFun(
-        {
-          args: [],
-          expr: macro
+    fields.push(
+      {
+        name: 'listScriptedClasses',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
           {
-            return ${scriptedEntryExpr}.listScriptClasses();
-          },
-          params: [],
-          ret: (macro :Array<String>)
-        }),
-      pos: Context.currentPos()
-    };
+            args: [],
+            expr: macro
+            {
+              return ${scriptedEntryExpr}.listScriptClasses();
+            },
+            params: [],
+            ret: (macro :Array<String>)
+          }),
+        pos: Context.currentPos()
+      });
   }
 
-  static function buildGetBuildInEntriesField(entryCls:ClassType):Field
+  static function buildGetBuildInEntriesField(entryCls:ClassType, fields:Array<Field>):Void
   {
+    if (!shouldBuildField('getBuiltInEntries', fields))
+    {
+      return;
+    }
+
     var entryExpr = Context.parse('${entryCls.pack.join('.')}.${entryCls.name}', Context.currentPos());
 
-    return {
-      name: 'getBuiltInEntries',
-      access: [Access.APrivate],
-      kind: FieldType.FFun(
-        {
-          args: [],
-          expr: macro
+    fields.push(
+      {
+        name: 'getBuiltInEntries',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
           {
-            return funkin.util.macro.ClassMacro.listSubclassesOf($entryExpr);
-          },
-          params: [],
-          ret: ComplexType.TPath(
+            args: [],
+            expr: macro
             {
-              pack: [],
-              name: 'List',
-              params: [
-                TypeParam.TPType(ComplexType.TPath(
-                  {
-                    pack: [],
-                    name: 'Class',
-                    params: [
-                      TypeParam.TPType(ComplexType.TPath(
-                        {
-                          pack: entryCls.pack,
-                          name: entryCls.name
-                        }))
-                    ]
-                  }))
-              ]
-            })
-        }),
-      pos: Context.currentPos()
-    };
+              return funkin.util.macro.ClassMacro.listSubclassesOf($entryExpr);
+            },
+            params: [],
+            ret: ComplexType.TPath(
+              {
+                pack: [],
+                name: 'List',
+                params: [
+                  TypeParam.TPType(ComplexType.TPath(
+                    {
+                      pack: [],
+                      name: 'Class',
+                      params: [
+                        TypeParam.TPType(ComplexType.TPath(
+                          {
+                            pack: entryCls.pack,
+                            name: entryCls.name
+                          }))
+                      ]
+                    }))
+                ]
+              })
+          }),
+        pos: Context.currentPos()
+      });
   }
 
-  static function buildCreateScriptedEntryField(entryCls:ClassType, scriptedEntryCls:ClassType):Field
+  static function buildCreateScriptedEntryField(entryCls:ClassType, scriptedEntryCls:ClassType, fields:Array<Field>):Void
   {
+    if (!shouldBuildField('createScriptedEntry', fields))
+    {
+      return;
+    }
+
     var scriptedStrExpr = '${scriptedEntryCls.pack.join('.')}.${scriptedEntryCls.name}.init(clsName, ${buildNullArgs(entryCls.constructor.get())})';
     var scriptedInitExpr = Context.parse(scriptedStrExpr, Context.currentPos());
 
-    return {
-      name: 'createScriptedEntry',
-      access: [Access.APrivate],
-      kind: FieldType.FFun(
-        {
-          args: [
-            {
-              name: 'clsName',
-              type: (macro :String)
-            }
-          ],
-          expr: macro
+    fields.push(
+      {
+        name: 'createScriptedEntry',
+        access: [Access.APrivate],
+        kind: FieldType.FFun(
           {
-            return ${scriptedInitExpr};
-          },
-          params: [],
-          ret: ComplexType.TPath(
+            args: [
+              {
+                name: 'clsName',
+                type: (macro :String)
+              }
+            ],
+            expr: macro
             {
-              pack: [],
-              name: 'Null',
-              params: [
-                TypeParam.TPType(ComplexType.TPath(
-                  {
-                    pack: entryCls.pack,
-                    name: entryCls.name
-                  }))
-              ]
-            })
-        }),
-      pos: Context.currentPos()
-    };
+              return ${scriptedInitExpr};
+            },
+            params: [],
+            ret: ComplexType.TPath(
+              {
+                pack: [],
+                name: 'Null',
+                params: [
+                  TypeParam.TPType(ComplexType.TPath(
+                    {
+                      pack: entryCls.pack,
+                      name: entryCls.name
+                    }))
+                ]
+              })
+          }),
+        pos: Context.currentPos()
+      });
   }
 
   static function buildNullArgs(fun:ClassField):String

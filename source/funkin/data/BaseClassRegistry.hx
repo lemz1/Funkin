@@ -11,7 +11,7 @@ abstract class BaseClassRegistry<T:(IClassRegistryEntry)>
   /**
    * This registry's id
    */
-  public var registryId(default, null):String;
+  public final registryId:String;
 
   final entries:Map<String, T>;
   final scriptedEntries:Map<String, String>;
