@@ -63,6 +63,8 @@ class RegistryMacro
   {
     // TODO: lets not have this if statement
     // like what the hell is wrong with this
+    // doing this if statement fixes the order
+    // for the song build macros
     if (cls.name == 'Song')
     {
       MacroUtil.getClassTypeFromExpr(macro funkin.data.song.SongRegistry);
