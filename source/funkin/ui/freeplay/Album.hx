@@ -9,6 +9,7 @@ import flixel.graphics.FlxGraphic;
 /**
  * A class representing the data for an album as displayed in Freeplay.
  */
+@:build(funkin.util.macro.RegistryMacro.buildEntry())
 class Album implements IRegistryEntry<AlbumData>
 {
   /**

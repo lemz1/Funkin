@@ -21,6 +21,8 @@ class RegistryMacro
       throw '${cls.module}.${cls.name} needs to end with "Registry"';
     }
 
+    trace('REGISTRY: ${cls.name}');
+
     var typeParams = getTypeParams(cls);
     var entryCls = typeParams.entryCls;
     var jsonCls = typeParams.jsonCls;
@@ -40,6 +42,8 @@ class RegistryMacro
     var fields = Context.getBuildFields();
 
     var cls = Context.getLocalClass().get();
+
+    trace('ENTRY: ${cls.name}');
 
     var entryData = getEntryData(cls);
 

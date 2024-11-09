@@ -4,6 +4,7 @@ import funkin.ui.freeplay.Album;
 import funkin.data.freeplay.album.AlbumData;
 import funkin.ui.freeplay.ScriptedAlbum;
 
+@:build(funkin.util.macro.RegistryMacro.buildRegistry())
 class AlbumRegistry extends BaseRegistry<Album, AlbumData>
 {
   /**
